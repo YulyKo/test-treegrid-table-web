@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AppService } from '../service/app.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,15 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  title = 'ej2-syncfusion-web';
+  title = 'web';
+  tasks: any;
+
+  constructor(
+    private appService: AppService
+  ) {}
+
+  ngOnInit(): void {
+    this.appService.fetchAll().subscribe((res) => this.tasks = res);
+    
+  }
 }
