@@ -3,8 +3,8 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { AppService } from '../service/app.service';
+import { AppComponent } from './components/app/app.component';
+import { AppService } from './service/app.service';
 
 @NgModule({
   declarations: [

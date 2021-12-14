@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { AppService } from '../service/app.service';
+import { AppService } from '../../service/app.service';
+import Task from '../../models/Tasks.interface';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,7 @@ import { AppService } from '../service/app.service';
 })
 export class AppComponent {
   title = 'web';
-  tasks: any;
+  tasks: Task[];
 
   constructor(
     private appService: AppService
