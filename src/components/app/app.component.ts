@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AppService } from '../../service/app.service';
-import Task from '../../models/Tasks.interface';
+import Row from '../../models/Row.interface';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.less']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'web';
-  tasks: Task[];
+  tasks: Row[];
 
   constructor(
     private appService: AppService
@@ -17,6 +17,5 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.appService.fetchAll().subscribe((res) => this.tasks = res);
-    
   }
 }
