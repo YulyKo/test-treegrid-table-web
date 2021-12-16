@@ -5,10 +5,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './components/app/app.component';
 import { AppService } from './service/app.service';
+import { AddRowComponent } from './components/forms/add-row/add-row.component';
+import { TableComponent } from './components/table/table.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    AddRowComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,

@@ -6,7 +6,7 @@ import { environment } from '../environments/environment';
   providedIn: 'root'
 })
 export class AppService {
-  API = `${ environment.API_URL }/api/tasks`;
+  API = `${ environment.API_URL }/api/row`;
 
   rows: any;
 
