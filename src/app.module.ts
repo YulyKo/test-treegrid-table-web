@@ -8,7 +8,8 @@ import { AppService } from './service/app.service';
 import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
 
 import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
-
+import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
+import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 @NgModule({
   declarations: [
     AppComponent,
@@ -18,7 +19,9 @@ import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    TreeGridModule
+    TreeGridModule,
+    DropDownListModule,
+    DatePickerModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]

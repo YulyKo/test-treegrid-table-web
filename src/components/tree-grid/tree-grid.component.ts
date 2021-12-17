@@ -45,7 +45,7 @@ export class TreeGridComponent implements OnInit {
 
   }
 
-  createFormGroup(data: ITaskModel): FormGroup {
+  createFormGroup(data: object): FormGroup {
     return new FormGroup({
       taskID: new FormControl(data.taskID, Validators.required),
       startDate: new FormControl(data.startDate, this.dateValidator()),
