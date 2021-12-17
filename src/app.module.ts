@@ -5,19 +5,20 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './components/app/app.component';
 import { AppService } from './service/app.service';
-import { AddRowComponent } from './components/forms/add-row/add-row.component';
-import { TableComponent } from './components/table/table.component';
+import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
+
+import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AddRowComponent,
-    TableComponent
+    TreeGridComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    TreeGridModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]

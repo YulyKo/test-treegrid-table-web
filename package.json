@@ -20,6 +20,7 @@
     "@angular/platform-browser": "~10.0.0",
     "@angular/platform-browser-dynamic": "~10.0.0",
     "@angular/router": "~10.0.0",
+    "@syncfusion/ej2-angular-treegrid": "^19.4.38",
     "normalize.css": "^8.0.1",
     "reset-css": "^5.0.1",
     "rxjs": "~6.5.5",
