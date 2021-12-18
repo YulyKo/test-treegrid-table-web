@@ -10,6 +10,8 @@ import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
 import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
 import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
+import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -21,7 +23,8 @@ import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
     HttpClientModule,
     TreeGridModule,
     DropDownListModule,
-    DatePickerModule
+    DatePickerModule,
+    NumericTextBoxModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]
