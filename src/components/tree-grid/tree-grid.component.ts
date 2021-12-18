@@ -40,71 +40,70 @@ export class TreeGridComponent implements OnInit {
     this.pageSettings = { pageCount: 5 };
     this.progressDistinctData = DataUtil.distinct(sampleData, 'progress', true);
     this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true );
+  }
 
-}
-
-createFormGroup(data: ITaskModel): FormGroup {
+  createFormGroup(data: ITaskModel): FormGroup {
     return new FormGroup({
-        taskID: new FormControl(data.taskID, Validators.required),
-        startDate: new FormControl(data.startDate, this.dateValidator()),
-        taskName: new FormControl(data.taskName, Validators.required),
-        duration: new FormControl(data.duration),
-        progress: new FormControl(data.progress),
-        priority: new FormControl(data.priority),
+      taskID: new FormControl(data.taskID, Validators.required),
+      startDate: new FormControl(data.startDate, this.dateValidator()),
+      taskName: new FormControl(data.taskName, Validators.required),
+      duration: new FormControl(data.duration),
+      progress: new FormControl(data.progress),
+      priority: new FormControl(data.priority),
     });
-}
+  }
 
-dateValidator() {
+  dateValidator() {
     return (control: FormControl): null | Object  => {
-        return control.value && control.value.getFullYear &&
-        (1900 <= control.value.getFullYear() && control.value.getFullYear() <=  2099) ? null : { OrderDate: { value : control.value}};
+      return control.value && control.value.getFullYear &&
+      (1900 <= control.value.getFullYear() && control.value.getFullYear() <=  2099) ? null : { OrderDate: { value : control.value}};
     };
-}
+  }
 
-actionBegin(args: SaveEventArgs): void {
+  actionBegin(args: SaveEventArgs): void {
     if (args.requestType === 'beginEdit' || args.requestType === 'add') {
-        this.submitClicked = false;
-        this.taskForm = this.createFormGroup(args.rowData);
+      this.submitClicked = false;
+      this.taskForm = this.createFormGroup(args.rowData);
     }
     if (args.requestType === 'save') {
-        this.submitClicked = true;
-        if (this.taskForm.valid) {
-            args.data = this.taskForm.value;
-        } else {
-            args.cancel = true;
-        }
+      this.submitClicked = true;
+      if (this.taskForm.valid) {
+        args.data = this.taskForm.value;
+      } else {
+        args.cancel = true;
+      }
     }
-}
+  }
 
-actionComplete(args: DialogEditEventArgs): void {
+  actionComplete(args: DialogEditEventArgs): void {
     if ((args.requestType === 'beginEdit' || args.requestType === 'add')) {
-        if (Browser.isDevice) {
-            args.dialog.height = window.innerHeight - 90 + 'px';
-            (<Dialog>args.dialog).dataBind();
-        }
-        // Set initail Focus
-        if (args.requestType === 'beginEdit') {
-            (args.form.elements.namedItem('taskName') as HTMLInputElement).focus();
-        } else if (args.requestType === 'add') {
-            (args.form.elements.namedItem('taskID') as HTMLInputElement).focus();
-        }
+      if (Browser.isDevice) {
+        args.dialog.height = window.innerHeight - 90 + 'px';
+        (<Dialog>args.dialog).dataBind();
+      }
+      // Set initail Focus
+      if (args.requestType === 'beginEdit') {
+        (args.form.elements.namedItem('taskName') as HTMLInputElement).focus();
+      } else if (args.requestType === 'add') {
+        (args.form.elements.namedItem('taskID') as HTMLInputElement).focus();
+      }
     }
-}
+  }
 
-get taskID(): AbstractControl  { return this.taskForm.get('taskID'); }
+  get taskID(): AbstractControl  { return this.taskForm.get('taskID'); }
 
-get taskName(): AbstractControl { return this.taskForm.get('taskName'); }
+  get taskName(): AbstractControl { return this.taskForm.get('taskName'); }
 
-get startDate(): AbstractControl { return this.taskForm.get('startDate'); }
+  get startDate(): AbstractControl { return this.taskForm.get('startDate'); }
 
 // tslint:enable
 }
 
 export interface ITaskModel {
-taskID?: number;
-taskName?: string;
-startDate?: Date;
-duration?: number;
-progress?: number;
-priority?: string;
+  taskID?: number;
+  taskName?: string;
+  startDate?: Date;
+  duration?: number;
+  progress?: number;
+  priority?: string;
 }
