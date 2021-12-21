@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 
-// import { sampleData } from './jsontreegriddata';
 import { Browser } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
-import { DialogEditEventArgs, SaveEventArgs } from '@syncfusion/ej2-angular-grids';
-import { EditService, ToolbarService, PageService } from '@syncfusion/ej2-angular-treegrid';
+import { DialogEditEventArgs, EditSettingsModel, PageSettingsModel, SaveEventArgs, SelectionSettingsModel, ToolbarItems } from '@syncfusion/ej2-angular-grids';
 import { FormGroup, AbstractControl, FormControl, Validators } from '@angular/forms';
 import { Dialog } from '@syncfusion/ej2-angular-popups';
 import Row from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import { sampleData } from '../../service/db';
+import { EditService, PageService, ToolbarService } from '@syncfusion/ej2-angular-treegrid';
+import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
 
 @Component({
   selector: 'app-tree-grid',
@@ -19,14 +19,16 @@ import { sampleData } from '../../service/db';
 })
 export class TreeGridComponent implements OnInit {
 // tslint:disable
-  public data: Object[] = [];
-  public editSettings: Object;
-  public toolbar: string[];
-  public pageSettings: Object;
+// tslint:enable
+  public data: object[] = [];
+  public editSettings: EditSettingsModel;
+  public toolbar: ToolbarItems|object[];
+  public pageSettings: PageSettingsModel;
   public taskForm: FormGroup;
-  public progressDistinctData: Object;
-  public priorityDistinctData: Object;
+  public progressDistinctData: Array<any>;
+  public priorityDistinctData: Array<any>;
   public submitClicked = false;
+  public selectionOptions: SelectionSettingsModel;
   rows: Row[];
 
   constructor(
@@ -35,11 +37,37 @@ export class TreeGridComponent implements OnInit {
 
   ngOnInit(): void {
     this.data = sampleData;
-    this.editSettings = { allowEditing: true, allowAdding: true, allowDeleting: true , mode: 'Dialog' , newRowPosition: 'Below'};
-    this.toolbar = ['Add', 'Edit', 'Delete'];
+    this.editSettings = {
+      allowEditing: true,
+      allowAdding: true,
+      allowDeleting: true,
+      mode: 'Dialog',
+      newRowPosition: 'Bottom',
+    };
+
+    this.toolbar = ['Add', 'Edit',
+      {
+        text: 'Delete',
+        tooltipText: 'Delete',
+        prefixIcon: 'e-delete',
+        id: 'Delete'
+      }
+    ];
     this.pageSettings = { pageCount: 5 };
     this.progressDistinctData = DataUtil.distinct(sampleData, 'progress', true);
-    this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true );
+    this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true);
+
+    this.selectionOptions = {
+      persistSelection: false,
+      enableToggle: true
+    };
+  }
+
+  toolbarClick(args: ClickEventArgs): void {
+    if (args.item.id === 'Delete') {
+      alert(args.item.id);
+      // open modal window here
+    }
   }
 
   createFormGroup(data: ITaskModel): FormGroup {
@@ -53,8 +81,8 @@ export class TreeGridComponent implements OnInit {
     });
   }
 
-  dateValidator() {
-    return (control: FormControl): null | Object  => {
+  dateValidator(): any {
+    return (control: FormControl): null | object  => {
       return control.value && control.value.getFullYear &&
       (1900 <= control.value.getFullYear() && control.value.getFullYear() <=  2099) ? null : { OrderDate: { value : control.value}};
     };
@@ -79,7 +107,9 @@ export class TreeGridComponent implements OnInit {
     if ((args.requestType === 'beginEdit' || args.requestType === 'add')) {
       if (Browser.isDevice) {
         args.dialog.height = window.innerHeight - 90 + 'px';
-        (<Dialog>args.dialog).dataBind();
+        // tslint:disable
+        (<Dialog> args.dialog).dataBind();
+        // tslint:enable
       }
       // Set initail Focus
       if (args.requestType === 'beginEdit') {
@@ -90,13 +120,11 @@ export class TreeGridComponent implements OnInit {
     }
   }
 
-  get taskID(): AbstractControl  { return this.taskForm.get('taskID'); }
+  get taskID(): AbstractControl { return this.taskForm.get('taskID'); }
 
   get taskName(): AbstractControl { return this.taskForm.get('taskName'); }
 
   get startDate(): AbstractControl { return this.taskForm.get('startDate'); }
-
-// tslint:enable
 }
 
 export interface ITaskModel {

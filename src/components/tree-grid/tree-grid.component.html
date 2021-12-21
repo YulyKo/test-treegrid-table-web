@@ -1,11 +1,56 @@
 <div class="control-section">
-    <ejs-treegrid [dataSource]='data'  childMapping='subtasks' height='350' [treeColumnIndex]='1'allowPaging='true' [pageSettings]='pageSettings' [editSettings]='editSettings' [toolbar]='toolbar' (actionBegin)="actionBegin($event)" (actionComplete)="actionComplete($event)">
+    <ejs-dialog id='dialog' #ejDialog allowDragging='true' header='Dialog' content='This is a Dialog with drag enabled'
+    [target]='targetElement' width='250px' [buttons]='buttons'> </ejs-dialog>`
+    <ejs-treegrid
+        #treegrid
+        [dataSource]='data'
+        childMapping='subtasks'
+        height='350'
+        [treeColumnIndex]='1'
+        allowPaging='true'
+        allowSelection='true'
+        (toolbarClick)='toolbarClick($event)'
+        [pageSettings]='pageSettings'
+        [editSettings]='editSettings'
+        [toolbar]='toolbar'
+        (actionBegin)="actionBegin($event)"
+        (actionComplete)="actionComplete($event)"
+        [selectionSettings]='selectionOptions'>
         <e-columns>
-            <e-column field='taskID' headerText='Task ID' width='120' textAlign='Right' isPrimaryKey='true' ></e-column>
-            <e-column field='taskName' headerText='Task Name' width='225' ></e-column>
-            <e-column field='startDate' headerText='Start Date' width='150' format="yMd" ></e-column>
-            <e-column field='duration' headerText='Duration' width='90'   textAlign='Right' ></e-column>
-            <e-column field='progress' headerText='Progress' width='90' textAlign='Right' ></e-column>
+            <e-column
+                type='checkbox'
+                width='50'
+            ></e-column>
+            <e-column
+                field='taskID'
+                headerText='Task ID'
+                width='120'
+                textAlign='Right'
+                isPrimaryKey='true'
+            ></e-column>
+            <e-column
+                field='taskName'
+                headerText='Task Name'
+                width='225'
+            ></e-column>
+            <e-column
+                field='startDate'
+                headerText='Start Date'
+                width='150'
+                format="yMd"
+            ></e-column>
+            <e-column
+                field='duration'
+                headerText='Duration'
+                width='90'
+                textAlign='Right'
+            ></e-column>
+            <e-column
+                field='progress'
+                headerText='Progress'
+                width='90'
+                textAlign='Right'
+            ></e-column>
         </e-columns>
         <ng-template #editSettingsTemplate let-data>
                 <div [formGroup]="taskForm">
