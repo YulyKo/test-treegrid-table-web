@@ -1,5 +1,4 @@
 <div class="control-section">
-    <!-- <button class="e-control e-btn" style="position: absolute;" visible="false" id="targetButton" (click)="onOpenDialog($event)">Open Dialog</button> -->
     <div #container class='root-container'>
         <section #container>
             <ejs-treegrid
@@ -7,9 +6,8 @@
                 [dataSource]='data'
                 childMapping='subtasks'
                 height='350'
-                [treeColumnIndex]='1'
-                allowPaging='true'
                 allowSelection='true'
+                [treeColumnIndex]='1'
                 (toolbarClick)='toolbarClick($event)'
                 [pageSettings]='pageSettings'
                 [editSettings]='editSettings'
@@ -98,9 +96,5 @@
                     </ng-template>
             </ejs-treegrid>
         </section>
-
-        <ejs-dialog id='dialog' #ejDialog allowDragging='false' header='Dialog' content='This is a Dialog with drag enabled'
-            [target]='targetElement' [visible]="showModal" width='250px' [buttons]='buttons'>
-        </ejs-dialog>
     </div>
 </div>
