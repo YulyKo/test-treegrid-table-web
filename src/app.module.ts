@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 
 import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
@@ -8,20 +9,16 @@ import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
 import { ToolbarModule } from '@syncfusion/ej2-angular-navigations';
-import { RowFormComponent } from './components/row-form/row-form.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { DialogModule } from '@syncfusion/ej2-angular-popups';
 
 import { AppService } from './service/app.service';
 import { AppComponent } from './components/app/app.component';
 import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
-import { DeleteIconComponent } from './assets/delete-icon/delete-icon.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TreeGridComponent,
-    RowFormComponent,
-    DeleteIconComponent
+    TreeGridComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +29,8 @@ import { DeleteIconComponent } from './assets/delete-icon/delete-icon.component'
     DatePickerModule,
     NumericTextBoxModule,
     ReactiveFormsModule,
-    ToolbarModule
+    ToolbarModule,
+    DialogModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]

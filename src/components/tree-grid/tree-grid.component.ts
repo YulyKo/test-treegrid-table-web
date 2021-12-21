@@ -4,12 +4,11 @@ import { Browser } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
 import { DialogEditEventArgs, EditSettingsModel, PageSettingsModel, SaveEventArgs, SelectionSettingsModel, ToolbarItems } from '@syncfusion/ej2-angular-grids';
 import { FormGroup, AbstractControl, FormControl, Validators } from '@angular/forms';
-import { Dialog } from '@syncfusion/ej2-angular-popups';
 import Row from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import { sampleData } from '../../service/db';
 import { EditService, PageService, ToolbarService } from '@syncfusion/ej2-angular-treegrid';
-import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
+import { Dialog } from '@syncfusion/ej2-angular-popups';
 
 @Component({
   selector: 'app-tree-grid',
@@ -18,8 +17,6 @@ import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
   providers: [AppService, ToolbarService, EditService, PageService]
 })
 export class TreeGridComponent implements OnInit {
-// tslint:disable
-// tslint:enable
   public data: object[] = [];
   public editSettings: EditSettingsModel;
   public toolbar: ToolbarItems|object[];
@@ -36,38 +33,30 @@ export class TreeGridComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // init data
     this.data = sampleData;
+    // for edit and create
     this.editSettings = {
       allowEditing: true,
       allowAdding: true,
       allowDeleting: true,
       mode: 'Dialog',
       newRowPosition: 'Bottom',
+      showDeleteConfirmDialog: true
     };
-
-    this.toolbar = ['Add', 'Edit',
-      {
-        text: 'Delete',
-        tooltipText: 'Delete',
-        prefixIcon: 'e-delete',
-        id: 'Delete'
-      }
-    ];
-    this.pageSettings = { pageCount: 5 };
-    this.progressDistinctData = DataUtil.distinct(sampleData, 'progress', true);
-    this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true);
 
     this.selectionOptions = {
       persistSelection: false,
       enableToggle: true
     };
-  }
 
-  toolbarClick(args: ClickEventArgs): void {
-    if (args.item.id === 'Delete') {
-      alert(args.item.id);
-      // open modal window here
-    }
+    // toolbar init
+    this.toolbar = ['Add', 'Edit', 'Delete'];
+
+    // treegrid
+    this.pageSettings = { pageCount: 5 };
+    this.progressDistinctData = DataUtil.distinct(sampleData, 'progress', true);
+    this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true);
   }
 
   createFormGroup(data: ITaskModel): FormGroup {
