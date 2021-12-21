@@ -19,7 +19,7 @@ import { Dialog } from '@syncfusion/ej2-angular-popups';
 export class TreeGridComponent implements OnInit {
   public data: object[] = [];
   public editSettings: EditSettingsModel;
-  public toolbar: ToolbarItems|object[];
+  public toolbar: ToolbarItems[];
   public pageSettings: PageSettingsModel;
   public taskForm: FormGroup;
   public progressDistinctData: Array<any>;
