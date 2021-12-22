@@ -1,100 +1,98 @@
 <div class="control-section">
-    <div #container class='root-container'>
-        <section #container>
-            <ejs-treegrid
-                #treegrid
-                [dataSource]='data'
-                childMapping='subtasks'
-                height='350'
-                allowSelection='true'
-                [treeColumnIndex]='1'
-                (toolbarClick)='toolbarClick($event)'
-                [pageSettings]='pageSettings'
-                [editSettings]='editSettings'
-                [toolbar]='toolbar'
-                (actionBegin)="actionBegin($event)"
-                (actionComplete)="actionComplete($event)"
-                [selectionSettings]='selectionOptions'>
+    <section #container>
+        <ejs-treegrid
+            #treegrid
+            [dataSource]='data'
+            childMapping='subtasks'
+            height='350'
+            allowSelection='true'
+            [treeColumnIndex]='1'
+            [pageSettings]='pageSettings'
+            [editSettings]='editSettings'
+            [toolbar]='toolbar'
+            (toolbarClick)='toolbarClick($event)'
+            (actionBegin)="actionBegin($event)"
+            (actionComplete)="actionComplete($event)"
+            [selectionSettings]='selectionOptions'>
 
-                <e-columns>
-                    <e-column
-                        type='checkbox'
-                        width='50'
-                    ></e-column>
-                    <e-column
-                        field='taskID'
-                        headerText='Task ID'
-                        width='120'
-                        textAlign='Right'
-                        isPrimaryKey='true'
-                    ></e-column>
-                    <e-column
-                        field='taskName'
-                        headerText='Task Name'
-                        width='225'
-                    ></e-column>
-                    <e-column
-                        field='startDate'
-                        headerText='Start Date'
-                        width='150'
-                        format="yMd"
-                    ></e-column>
-                    <e-column
-                        field='duration'
-                        headerText='Duration'
-                        width='90'
-                        textAlign='Right'
-                    ></e-column>
-                    <e-column
-                        field='progress'
-                        headerText='Progress'
-                        width='90'
-                        textAlign='Right'
-                    ></e-column>
-                </e-columns>
-                <ng-template #editSettingsTemplate let-data>
-                        <div [formGroup]="taskForm">
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <div class="e-float-input e-control-wrapper" [ngClass]="{'e-error': taskID.invalid && (taskID.dirty || taskID.touched)}">
-                                        <input formControlName="taskID" data-msg-containerid='taskIDError' id="taskID" name="taskID" type="text" [attr.disabled]="!data.isAdd ? '' : null">
-                                        <span class="e-float-line"></span>
-                                        <label class="e-float-text e-label-top" for="taskID"> Task ID</label>
-                                    </div>
-                                    <div id="taskIDError" [style.visibility]='((taskID.invalid && (taskID.dirty || taskID.touched)) || (taskID.invalid && submitClicked))? "visible": "hidden"'>
-                                        <label class="e-error" for="taskID" id="taskID-info" style="display: block;">*Task ID is required</label>
-                                    </div>
+            <e-columns>
+                <e-column
+                    type='checkbox'
+                    width='50'
+                ></e-column>
+                <e-column
+                    field='taskID'
+                    headerText='Task ID'
+                    width='120'
+                    textAlign='Right'
+                    isPrimaryKey='true'
+                ></e-column>
+                <e-column
+                    field='taskName'
+                    headerText='Task Name'
+                    width='225'
+                ></e-column>
+                <e-column
+                    field='startDate'
+                    headerText='Start Date'
+                    width='150'
+                    format="yMd"
+                ></e-column>
+                <e-column
+                    field='duration'
+                    headerText='Duration'
+                    width='90'
+                    textAlign='Right'
+                ></e-column>
+                <e-column
+                    field='progress'
+                    headerText='Progress'
+                    width='90'
+                    textAlign='Right'
+                ></e-column>
+            </e-columns>
+            <ng-template #editSettingsTemplate let-data>
+                    <div [formGroup]="taskForm">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <div class="e-float-input e-control-wrapper" [ngClass]="{'e-error': taskID.invalid && (taskID.dirty || taskID.touched)}">
+                                    <input formControlName="taskID" data-msg-containerid='taskIDError' id="taskID" name="taskID" type="text" [attr.disabled]="!data.isAdd ? '' : null">
+                                    <span class="e-float-line"></span>
+                                    <label class="e-float-text e-label-top" for="taskID"> Task ID</label>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <div class="e-float-input e-control-wrapper" [ngClass]="{'e-error': taskName.invalid && (taskName.dirty || taskName.touched)}">
-                                        <input formControlName="taskName" data-msg-containerid='taskNameError' id="taskName" name="taskName" type="text">
-                                        <span class="e-float-line"></span>
-                                        <label class="e-float-text e-label-top" for="taskName">Task Name</label>
-                                    </div>
-                                    <div id="taskNameError" [style.visibility]='((taskName.invalid && (taskName.dirty || taskName.touched)) || (taskName.invalid && submitClicked))? "visible": "hidden"'>
-                                        <label class="e-error" for="taskName" id="taskName-info" style="display: block;">*Task Name is required</label>
-                                    </div>
+                                <div id="taskIDError" [style.visibility]='((taskID.invalid && (taskID.dirty || taskID.touched)) || (taskID.invalid && submitClicked))? "visible": "hidden"'>
+                                    <label class="e-error" for="taskID" id="taskID-info" style="display: block;">*Task ID is required</label>
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <ejs-numerictextbox formControlName="duration" id="duration" placeholder="Duration" format="##" floatLabelType='Always'></ejs-numerictextbox>
+                            <div class="form-group col-md-6">
+                                <div class="e-float-input e-control-wrapper" [ngClass]="{'e-error': taskName.invalid && (taskName.dirty || taskName.touched)}">
+                                    <input formControlName="taskName" data-msg-containerid='taskNameError' id="taskName" name="taskName" type="text">
+                                    <span class="e-float-line"></span>
+                                    <label class="e-float-text e-label-top" for="taskName">Task Name</label>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <ejs-datepicker id="startDate" formControlName="startDate" placeholder="Start Date" floatLabelType='Always'></ejs-datepicker>
-                                    <div id="startDateError" [style.visibility]='((startDate.invalid && (startDate.dirty || startDate.touched)) || (startDate.invalid && submitClicked)) ? "visible": "hidden"'>
-                                        <label class="e-error" for="startDate" id="startDate-info" style="display: block;">*Start Date is required</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <ejs-dropdownlist id="progress" formControlName="progress" [dataSource]='progressDistinctData' [fields]="{text: 'progress', value: 'progress' }" placeholder="Progress" popupHeight='300px' floatLabelType='Always'></ejs-dropdownlist>
+                                <div id="taskNameError" [style.visibility]='((taskName.invalid && (taskName.dirty || taskName.touched)) || (taskName.invalid && submitClicked))? "visible": "hidden"'>
+                                    <label class="e-error" for="taskName" id="taskName-info" style="display: block;">*Task Name is required</label>
                                 </div>
                             </div>
-                        </div> 
-                    </ng-template>
-            </ejs-treegrid>
-        </section>
-    </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <ejs-numerictextbox formControlName="duration" id="duration" placeholder="Duration" format="##" floatLabelType='Always'></ejs-numerictextbox>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <ejs-datepicker id="startDate" formControlName="startDate" placeholder="Start Date" floatLabelType='Always'></ejs-datepicker>
+                                <div id="startDateError" [style.visibility]='((startDate.invalid && (startDate.dirty || startDate.touched)) || (startDate.invalid && submitClicked)) ? "visible": "hidden"'>
+                                    <label class="e-error" for="startDate" id="startDate-info" style="display: block;">*Start Date is required</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <ejs-dropdownlist id="progress" formControlName="progress" [dataSource]='progressDistinctData' [fields]="{text: 'progress', value: 'progress' }" placeholder="Progress" popupHeight='300px' floatLabelType='Always'></ejs-dropdownlist>
+                            </div>
+                        </div>
+                    </div> 
+                </ng-template>
+        </ejs-treegrid>
+    </section>
 </div>

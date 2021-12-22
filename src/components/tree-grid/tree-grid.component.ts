@@ -1,14 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { Browser } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
-import { DialogEditEventArgs, EditSettingsModel, PageSettingsModel, SaveEventArgs, SelectionSettingsModel, ToolbarItems } from '@syncfusion/ej2-angular-grids';
+import {
+  ActionEventArgs,
+  ContextMenuItem,
+  DialogEditEventArgs,
+  EditEventArgs,
+  EditSettingsModel,
+  PageSettingsModel,
+  SaveEventArgs,
+  SelectionSettingsModel
+} from '@syncfusion/ej2-angular-grids';
 import { FormGroup, AbstractControl, FormControl, Validators } from '@angular/forms';
 import Row from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import { sampleData } from '../../service/db';
-import { EditService, PageService, ToolbarService } from '@syncfusion/ej2-angular-treegrid';
+import { EditService, PageService, ToolbarService, TreeGridComponent as TreeGridComp } from '@syncfusion/ej2-angular-treegrid';
 import { Dialog } from '@syncfusion/ej2-angular-popups';
+import { ClickEventArgs, EventArgs } from '@syncfusion/ej2-angular-navigations';
 
 @Component({
   selector: 'app-tree-grid',
@@ -18,15 +28,19 @@ import { Dialog } from '@syncfusion/ej2-angular-popups';
 })
 export class TreeGridComponent implements OnInit {
   public data: object[] = [];
-  public editSettings: EditSettingsModel;
-  public toolbar: ToolbarItems[];
+  public editSettings: EditSettingsModel | any;
+  public toolbar: any[];
   public pageSettings: PageSettingsModel;
   public taskForm: FormGroup;
   public progressDistinctData: Array<any>;
   public priorityDistinctData: Array<any>;
   public submitClicked = false;
   public selectionOptions: SelectionSettingsModel;
+  // public pp: ContextMenuItem
   rows: Row[];
+
+  @ViewChild('treegrid')
+  public treeGridObj: TreeGridComp;
 
   constructor(
     private appService: AppService
@@ -41,8 +55,9 @@ export class TreeGridComponent implements OnInit {
       allowAdding: true,
       allowDeleting: true,
       mode: 'Dialog',
-      newRowPosition: 'Bottom',
-      showDeleteConfirmDialog: true
+      newRowPosition: 'Child',
+      showDeleteConfirmDialog: true,
+      // newRowPosition: 'Child'
     };
 
     this.selectionOptions = {
@@ -51,7 +66,24 @@ export class TreeGridComponent implements OnInit {
     };
 
     // toolbar init
-    this.toolbar = ['Add', 'Edit', 'Delete'];
+    this.toolbar = [
+      {
+        text: 'Add Parent',
+        tooltipText: 'Add Parent',
+        id: 'addParent'
+      },
+      {
+        text: 'Add Child',
+        tooltipText: 'Add Child',
+        id: 'addChild'
+      },
+     'Add',
+     'Edit',
+     'Delete',
+     'Cut',
+     { text: 'Copy', target: '.e-content', id: 'customCopy'},
+     { text: 'Paste', target: '.e-content', id: 'customPaste'},
+    ];
 
     // treegrid
     this.pageSettings = { pageCount: 5 };
@@ -92,22 +124,39 @@ export class TreeGridComponent implements OnInit {
     }
   }
 
-  actionComplete(args: DialogEditEventArgs): void {
-    if ((args.requestType === 'beginEdit' || args.requestType === 'add')) {
-      if (Browser.isDevice) {
-        args.dialog.height = window.innerHeight - 90 + 'px';
-        // tslint:disable
-        (<Dialog> args.dialog).dataBind();
-        // tslint:enable
-      }
-      // Set initail Focus
-      if (args.requestType === 'beginEdit') {
-        (args.form.elements.namedItem('taskName') as HTMLInputElement).focus();
-      } else if (args.requestType === 'add') {
-        (args.form.elements.namedItem('taskID') as HTMLInputElement).focus();
+  toolbarClick(args: ClickEventArgs): void {
+    let rowIndex: number;
+    let cellIndex: any;
+
+    if (args.item.text === 'Add Parent' || args.item.text === 'Add Child') {
+      // checking if any record is choosen for adding new record below/child to it
+      if (this.treeGridObj.getSelectedRecords().length) {
+        // if the 'Add Parent' or 'Add Child' option is choose,
+        // setting newRowPosition accordingly and calling 'addRecord' method
+        this.treeGridObj.editSettings.newRowPosition = (args.item.text === 'Add Parent') ? 'Below' : 'Child';
+        this.treeGridObj.addRecord();
+      } else if (args.item.text === 'Add Parent') {
+        this.treeGridObj.editSettings.newRowPosition = 'Below';
+        this.treeGridObj.addRecord();
+      } else {
+        // for adding with 'Child' newRowPosition, a record should be choosen. If not, showing alert
+        alert('No record selected for Add Operation');
       }
     }
+    if (args.item.id === 'customCopy') {
+      rowIndex = this.treeGridObj.selectedRowIndex;
+      cellIndex = this.treeGridObj.getSelectedRowCellIndexes;
+
+      this.treeGridObj.copy();
+    } else if (args.item.id === 'customPaste') {
+      const copiedData = this.treeGridObj.clipboardModule.copyContent;
+
+      this.treeGridObj.paste(copiedData, rowIndex, cellIndex);
+    }
+    // event.item => class ItemModel
   }
+
+  actionComplete(args): void {}
 
   get taskID(): AbstractControl { return this.taskForm.get('taskID'); }
 
@@ -124,3 +173,9 @@ export interface ITaskModel {
   progress?: number;
   priority?: string;
 }
+
+export type NewParentRow = {
+  text: 'Add Parent';
+  tooltipText: 'Add Parent';
+  id: 'Add Parent';
+};
