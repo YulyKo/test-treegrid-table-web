@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider; ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -29,7 +29,6 @@
     "@angular-devkit/build-angular": "~0.1000.0",
     "@angular/cli": "~10.0.0",
     "@angular/compiler-cli": "~10.0.0",
-    "@types/node": "^12.11.1",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
@@ -46,5 +45,8 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.9.5"
+  },
+  "engines": {
+    "node": "14.15.4"
   }
 }
