@@ -149,6 +149,7 @@ export class TreeGridComponent implements OnInit {
 
       this.treeGridObj.copy();
     } else if (args.item.id === 'customPaste') {
+      // @ts-ignore: Unreachable code error
       const copiedData = this.treeGridObj.clipboardModule.copyContent;
 
       this.treeGridObj.paste(copiedData, rowIndex, cellIndex);
