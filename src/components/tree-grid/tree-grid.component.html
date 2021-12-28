@@ -4,17 +4,22 @@
             #treegrid
             [dataSource]='data'
             childMapping='subtasks'
-            height='350'
+            height='700'
             allowSelection='true'
+            allowSorting='true'
+            allowResizing='true'
             [treeColumnIndex]='1'
+            allowSorting='true'
             [pageSettings]='pageSettings'
             [editSettings]='editSettings'
-            [toolbar]='toolbar'
-            (toolbarClick)='toolbarClick($event)'
             (actionBegin)="actionBegin($event)"
             (actionComplete)="actionComplete($event)"
-            [selectionSettings]='selectionOptions'>
-
+            [contextMenuItems]="contextMenuItems"
+            (contextMenuOpen)="contextMenuOpen($event)"
+            (contextMenuClick)="contextMenuClick($event)"
+            [selectionSettings]='selectionOptions'
+            [toolbar]='toolbar'
+            >
             <e-columns>
                 <e-column
                     type='checkbox'
@@ -93,6 +98,14 @@
                         </div>
                     </div> 
                 </ng-template>
+                <form [formGroup]="form">
+                    <div *ngFor="let control of form.controls |keyvalue;let i=index">
+                    <label>{{fields[i].label}}</label>
+                    <input [formControl]="control.value">
+                        <div class="error" *ngIf="control.value.touched && 
+                               control.value.invalid">Required</div>
+                    </div>
+                </form>
         </ejs-treegrid>
     </section>
 </div>

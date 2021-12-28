@@ -1,12 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-
-import { Browser } from '@syncfusion/ej2-base';
-import { DataUtil } from '@syncfusion/ej2-data';
+import { DataUtil, WebApiAdaptor, Query, ReturnOption, DataManager } from '@syncfusion/ej2-data';
 import {
-  ActionEventArgs,
-  ContextMenuItem,
-  DialogEditEventArgs,
-  EditEventArgs,
   EditSettingsModel,
   PageSettingsModel,
   SaveEventArgs,
@@ -16,15 +10,27 @@ import { FormGroup, AbstractControl, FormControl, Validators } from '@angular/fo
 import Row from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import { sampleData } from '../../service/db';
-import { EditService, PageService, ToolbarService, TreeGridComponent as TreeGridComp } from '@syncfusion/ej2-angular-treegrid';
-import { Dialog } from '@syncfusion/ej2-angular-popups';
-import { ClickEventArgs, EventArgs } from '@syncfusion/ej2-angular-navigations';
-
+import {
+  ContextMenuService,
+  EditService,
+  PageService,
+  ToolbarService,
+  TreeGridComponent as TreeGridComp
+} from '@syncfusion/ej2-angular-treegrid';
+import Treerow from '../../models/Treerow.class';
+import { v4 as uuidv4 } from "uuid";
+import Column from '../../models/Column.interface';
 @Component({
   selector: 'app-tree-grid',
   templateUrl: './tree-grid.component.html',
   styleUrls: ['./tree-grid.component.less'],
-  providers: [AppService, ToolbarService, EditService, PageService]
+  providers: [
+    AppService,
+    ToolbarService,
+    EditService,
+    PageService,
+    ContextMenuService
+  ]
 })
 export class TreeGridComponent implements OnInit {
   public data: object[] = [];
@@ -38,9 +44,27 @@ export class TreeGridComponent implements OnInit {
   public selectionOptions: SelectionSettingsModel;
   // public pp: ContextMenuItem
   rows: Row[];
+  selectedRow: Row | HTMLElement | any;
 
-  @ViewChild('treegrid')
+  @ViewChild('treeGridObj')
   public treeGridObj: TreeGridComp;
+  public contextMenuItems: object[];
+  public templateOptions: object;
+
+  copiedRow: Row | any;
+  public cutRowBool: boolean = false;
+
+  public dataManager: DataManager = new DataManager({
+    url: "https://vom-app.herokuapp.com/tasks?limit=14000",
+    updateUrl: "https://vom-app.herokuapp.com/tasks",
+    insertUrl: "https://vom-app.herokuapp.com/tasks",
+    removeUrl: "https://vom-app.herokuapp.com/tasks",
+    crossDomain: true,
+    adaptor: new WebApiAdaptor()
+  });
+  rowIndex: number;
+  public MultiSelect: boolean = false;
+  fields = new FormGroup({});
 
   constructor(
     private appService: AppService
@@ -55,57 +79,87 @@ export class TreeGridComponent implements OnInit {
       allowAdding: true,
       allowDeleting: true,
       mode: 'Dialog',
-      newRowPosition: 'Child',
-      showDeleteConfirmDialog: true,
+      showDeleteConfirmDialog: true
       // newRowPosition: 'Child'
     };
 
     this.selectionOptions = {
       persistSelection: false,
       enableToggle: true
+      // cellSelectionMode: 'Box'
     };
 
-    // toolbar init
-    this.toolbar = [
+    this.contextMenuItems = [
       {
-        text: 'Add Parent',
-        tooltipText: 'Add Parent',
-        id: 'addParent'
+        text: 'Add/Delete/Edit (Dialog)',
+        target: '.e-content',
+        id: 'renderDialog'
       },
       {
-        text: 'Add Child',
-        tooltipText: 'Add Child',
-        id: 'addChild'
+        text: 'Copy',
+        target: '.e-content',
+        id: 'customCopy'
       },
-     'Add',
-     'Edit',
-     'Delete',
-     'Cut',
-     { text: 'Copy', target: '.e-content', id: 'customCopy'},
-     { text: 'Paste', target: '.e-content', id: 'customPaste'},
+      {
+        text: 'Copy',
+        target: '.e-content',
+        id: 'customCopy'
+      },
+      {
+        text: 'Paste Next',
+        target: '.e-content',
+        id: 'pasteNext'
+      },
+      {
+        text: 'Paste Child',
+        target: '.e-content',
+        id: 'pasteChild'
+      },
+      {
+        text: 'Delete',
+        target: '.e-content',
+        id: 'delete'
+      }
     ];
 
-    // treegrid
+    // toolbar init
+    // treeGridObj
     this.pageSettings = { pageCount: 5 };
     this.progressDistinctData = DataUtil.distinct(sampleData, 'progress', true);
     this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true);
+
+    this.fields.forEach( x => {
+      this.form.addControl(x.id,new FormControl(x.value,Validators.Required))
+     });
   }
 
-  createFormGroup(data: ITaskModel): FormGroup {
+  createFormGroup(data: Row): FormGroup {
     return new FormGroup({
-      taskID: new FormControl(data.taskID, Validators.required),
-      startDate: new FormControl(data.startDate, this.dateValidator()),
-      taskName: new FormControl(data.taskName, Validators.required),
-      duration: new FormControl(data.duration),
+      startDate: new FormControl(data.startDate || '', this.dateValidator()),
+      taskName: new FormControl(data.taskName || '', Validators.required),
+      duration: new FormControl(data.duration || ''),
       progress: new FormControl(data.progress),
       priority: new FormControl(data.priority),
+    });
+  }
+
+  createColumnFormGroup(data: Column): FormGroup {
+    return new FormGroup({
+      // rowID: new FormControl(data.taskID, Validators.required),
+      name: new FormControl(data.name || '',  Validators.required),
+      dataType: new FormControl(data.dataType || '', Validators.required),
+      dafautValue: new FormControl(data.dafautValue || ''),
+      backgoundColor: new FormControl(data.backgoundColor),
+      fontColor: new FormControl(data.fontColor),
+      alginment: new FormControl(data.alginment),
+      minWidth: new FormControl(data.minWith)
     });
   }
 
   dateValidator(): any {
     return (control: FormControl): null | object  => {
       return control.value && control.value.getFullYear &&
-      (1900 <= control.value.getFullYear() && control.value.getFullYear() <=  2099) ? null : { OrderDate: { value : control.value}};
+      (1900 <= control.value.getFullYear() && control.value.getFullYear()) ? null : { OrderDate: { value : control.value}};
     };
   }
 
@@ -124,36 +178,207 @@ export class TreeGridComponent implements OnInit {
     }
   }
 
-  toolbarClick(args: ClickEventArgs): void {
-    let rowIndex: number;
-    let cellIndex: any;
+  contextMenuClick(args): void {
+    // this.MultiSelect = true;
+    if (args.item.id == "rsibling") {
+      if (this.cutRowBool == true) {
+         // @ts-ignore: Unreachable code error
+        let copyContent = this.treeGridObj.clipboardModule.copyContent;
 
-    if (args.item.text === 'Add Parent' || args.item.text === 'Add Child') {
-      // checking if any record is choosen for adding new record below/child to it
-      if (this.treeGridObj.getSelectedRecords().length) {
-        // if the 'Add Parent' or 'Add Child' option is choose,
-        // setting newRowPosition accordingly and calling 'addRecord' method
-        this.treeGridObj.editSettings.newRowPosition = (args.item.text === 'Add Parent') ? 'Below' : 'Child';
-        this.treeGridObj.addRecord();
-      } else if (args.item.text === 'Add Parent') {
-        this.treeGridObj.editSettings.newRowPosition = 'Below';
-        this.treeGridObj.addRecord();
+        // this.treeGridObj.paste(copyContent, rowIndex);
+
+        let stringArray = copyContent.split("\t");
+        let newRecord: Treerow = new Treerow(
+          stringArray[0],
+          stringArray[1],
+          stringArray[2],
+          stringArray[3],
+          stringArray[4],
+          stringArray[5],
+          stringArray[6],
+          this.selectedRow.data.ParentItem
+        );
+        newRecord.children = [];
+        newRecord.isParent = true;
+        newRecord.id = uuidv4();
+        const body = {
+          TaskName: newRecord.TaskName,
+          StartDate: newRecord.StartDate,
+          EndDate: newRecord.EndDate,
+          Duration: newRecord.Duration,
+          Progress: newRecord.Progress,
+          Priority: newRecord.Priority,
+          isParent: newRecord.isParent,
+          ParentItem: newRecord.ParentItem
+        };
+
+        // this.http delete item
+        // this.http set new
+
+        // this.treeGridObj.addRecord(newRecord, 0, 'Above');
+
+        this.cutRowBool = false;
+        this.copiedRow.setAttribute("style", "background:white;");
       } else {
-        // for adding with 'Child' newRowPosition, a record should be choosen. If not, showing alert
-        alert('No record selected for Add Operation');
+        // @ts-ignore: Unreachable code error
+        let copyContent = this.treeGridObj.clipboardModule.copyContent;
+
+        // this.treeGridObj.paste(copyContent, rowIndex);
+
+        let stringArray = copyContent.split("\t");
+        let newRecord: Treerow = new Treerow(
+          stringArray[0],
+          stringArray[1],
+          stringArray[2],
+          stringArray[3],
+          stringArray[4],
+          stringArray[5],
+          stringArray[6],
+          this.selectedRow.data.ParentItem
+        );
+        newRecord.children = [];
+        newRecord.isParent = true;
+        newRecord.id = uuidv4();
+        const body = {
+          TaskID: newRecord.TaskID,
+          TaskName: newRecord.TaskName,
+          StartDate: newRecord.StartDate,
+          EndDate: newRecord.EndDate,
+          Duration: newRecord.Duration,
+          Progress: newRecord.Progress,
+          Priority: newRecord.Priority,
+          isParent: newRecord.isParent,
+          ParentItem: newRecord.ParentItem
+        };
+
+        // this.http
+        //   .post<any>("https://vom-app.herokuapp.com/tasks", body)
+        //   .subscribe((data) => {
+        //     console.log("post:------------------2", data);
+        //     this.dataManager
+        //       .executeQuery(new Query())
+        //       .then(
+        //         (e: ReturnOption) => (this.data = e.result.data as object[])
+        //       )
+        //       .catch((e) => true);
+        //   });
+        this.dataManager
+          .executeQuery(new Query())
+          // @ts-ignore: Unreachable code error
+          .then((e: ReturnOption) => (this.data = e.result.data as object[]))
+          .catch((e) => true);
+        // this.treeGridObj.addRecord(newRecord, 0, 'Above');
+
+        this.copiedRow.setAttribute("style", "background:white;");
       }
     }
-    if (args.item.id === 'customCopy') {
-      rowIndex = this.treeGridObj.selectedRowIndex;
-      cellIndex = this.treeGridObj.getSelectedRowCellIndexes;
 
-      this.treeGridObj.copy();
-    } else if (args.item.id === 'customPaste') {
+    if (args.item.id == "rchild") {
       // @ts-ignore: Unreachable code error
-      const copiedData = this.treeGridObj.clipboardModule.copyContent;
+      let copyContent = this.treeGridObj.clipboardModule.copyContent;
+      let stringArray = copyContent.split("\t");
+      let newRecord: Treerow = new Treerow(
+        stringArray[0],
+        stringArray[1],
+        stringArray[2],
+        stringArray[3],
+        stringArray[4],
+        stringArray[5],
+        stringArray[6],
+        this.selectedRow.data.TaskID
+      );
+      newRecord.children = [];
+      newRecord.isParent = false;
+      newRecord.id = uuidv4();
+      const body = {
+        TaskID: newRecord.TaskID,
+        TaskName: newRecord.TaskName,
+        StartDate: newRecord.StartDate,
+        EndDate: newRecord.EndDate,
+        Duration: newRecord.Duration,
+        Progress: newRecord.Progress,
+        Priority: newRecord.Priority,
+        isParent: newRecord.isParent,
+        ParentItem: newRecord.ParentItem
+      };
 
-      this.treeGridObj.paste(copiedData, rowIndex, cellIndex);
+      // this.http
+      //   .post<any>("https://vom-app.herokuapp.com/tasks", body)
+      //   .subscribe((data) => {
+      //     console.log("post:------------------4", data);
+      //     this.dataManager
+      //       .executeQuery(new Query())
+      //       .then(
+      //         (e: ReturnOption) => (this.data = e.result.data as object[])
+      //       )
+      //       .catch((e) => true);
+      //   });
+
+      // this.treeGridObj.addRecord(newRecord, this.selectedRow.row.rowIndex,'Child');
+      this.copiedRow.setAttribute("style", "background:white;");
+    } else if (args.item.id === "rcopy") {
+      this.MultiSelect = true;
+
+      this.editSettings = {
+        allowEditing: true,
+        allowAdding: true,
+        allowDeleting: true,
+
+        newRowPosition: "Child",
+        mode: "Batch"
+      };
+      this.copiedRow = this.treeGridObj.getRowByIndex(this.rowIndex);
+
+      this.treeGridObj.copyHierarchyMode = "None";
+      this.treeGridObj.copy();
+      this.copiedRow.setAttribute("style", "background:#FFC0CB;");
     }
+  }
+
+  contextMenuOpen(args?): void {
+    console.log('contextMenuOpen');
+
+    // let rowIndex: number[];
+    let cellIndex: any;
+    // let elem: Element;
+
+    let rowIndex: number[] = args.rowInfo.rowIndex;
+    let elem: Element = args.event.target as Element;
+    console.log(rowIndex, elem);
+    
+/*
+
+if (args.item.text === 'Add Parent' || args.item.text === 'Add Child') {
+  // checking if any record is choosen for adding new record below/child to it
+  if (this.treeGridObj.getSelectedRecords().length) {
+    // if the 'Add Parent' or 'Add Child' option is choose,
+    // setting newRowPosition accordingly and calling 'addRecord' method
+    this.treeGridObj.editSettings.newRowPosition = (args.item.text === 'Add Parent') ? 'Below' : 'Child';
+    this.treeGridObj.addRecord();
+  } else if (args.item.text === 'Add Parent') {
+    this.treeGridObj.editSettings.newRowPosition = 'Below';
+    this.treeGridObj.addRecord();
+  } else {
+    // for adding with 'Child' newRowPosition, a record should be choosen. If not, showing alert
+    alert('No record selected for Add Operation');
+  }
+}
+if (args.item.id === 'customCopy') {
+
+  // rowIndex = this.treeGridObj.getRowInfo().rowIndex; // args.rowInfo.rowIndex;
+  // cellIndex = this.treeGridObj.getRowInfo().cellIndex; // args.rowInfo.cellIndex;
+
+  rowIndex = args.rowInfo.rowIndex; 
+  elem = args.event.target as Element;
+  this.treeGridObj.copy();
+} else if (args.item.id === 'customPaste') {
+  // @ts-ignore: Unreachable code error
+  const copiedData = this.treeGridObj.clipboardModule.copyContent;
+
+    // @ts-ignore: Unreachable code error
+  this.treeGridObj.paste(copiedData, rowIndex, cellIndex);
+}
+*/
     // event.item => class ItemModel
   }
 
@@ -174,9 +399,3 @@ export interface ITaskModel {
   progress?: number;
   priority?: string;
 }
-
-export type NewParentRow = {
-  text: 'Add Parent';
-  tooltipText: 'Add Parent';
-  id: 'Add Parent';
-};
