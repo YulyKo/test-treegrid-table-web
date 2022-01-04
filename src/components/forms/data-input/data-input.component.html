@@ -1,0 +1,32 @@
+<ng-container [ngSwitch]="type">
+
+  <input type="text" [formControl]="valueControl" *ngSwitchCase="dataType.TEXT"/>
+
+  <input type="number" [formControl]="valueControl" *ngSwitchCase="dataType.NUMBER"/>
+
+  <ejs-dropdownlist
+    #dropDownComponent
+    [dataSource]="booleanDataSource"
+    [fields]="fields"
+    [formControl]="valueControl"
+    *ngSwitchCase="dataType.BOOLEAN"
+  ></ejs-dropdownlist>
+
+  <div *ngSwitchCase="dataType.DROPDOWN">
+    <ejs-radiobutton
+      style="display: block; margin-top: 10px"
+      *ngFor="let item of dropdownDataSource | async"
+      [label]="item.type"
+      name="defaultDropdownValue"
+      [value]="item.id"
+      [formControl]="valueControl"
+    ></ejs-radiobutton>
+  </div>
+
+  <ejs-datepicker
+    *ngSwitchCase="dataType.DATE"
+    [formControl]="valueControl"
+    floatLabelType='Always'
+  ></ejs-datepicker>
+
+</ng-container>
