@@ -4,10 +4,29 @@
 
   <input type="number" [formControl]="valueControl" *ngSwitchCase="dataType.NUMBER"/>
 
-  <ejs-dropdownlist #dropDownComponent [dataSource]="booleanDataSource" [fields]="fields" name="ColAlign" [formControl]="valueControl" *ngSwitchCase="dataType.BOOLEAN"></ejs-dropdownlist>
+  <ejs-dropdownlist
+    #dropDownComponent
+    [dataSource]="booleanDataSource"
+    [fields]="fields"
+    [formControl]="valueControl"
+    *ngSwitchCase="dataType.BOOLEAN"
+  ></ejs-dropdownlist>
 
-  <ejs-dropdownlist #dropDownComponent [dataSource]="dropdownDataSource" [fields]="fields" name="ColAlign" [formControl]="valueControl" *ngSwitchCase="dataType.DROPDOWN"></ejs-dropdownlist>
-  
-  <ejs-datepicker [formControl]="valueControl" *ngSwitchCase="dataType.DROPDOWN"></ejs-datepicker>
+  <div *ngSwitchCase="dataType.DROPDOWN">
+    <ejs-radiobutton
+      style="display: block; margin-top: 10px"
+      *ngFor="let item of dropdownDataSource | async"
+      [label]="item.type"
+      name="defaultDropdownValue"
+      [value]="item.id"
+      [formControl]="valueControl"
+    ></ejs-radiobutton>
+  </div>
+
+  <ejs-datepicker
+    *ngSwitchCase="dataType.DATE"
+    [formControl]="valueControl"
+    floatLabelType='Always'
+  ></ejs-datepicker>
 
 </ng-container>

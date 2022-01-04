@@ -1,16 +1,17 @@
-import { Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import {Component, Inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { DialogComponent } from '@syncfusion/ej2-angular-popups';
 import { UploaderComponent } from '@syncfusion/ej2-angular-inputs';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { EmitType } from '@syncfusion/ej2-base';
 import { DropDownListComponent } from '@syncfusion/ej2-angular-dropdowns';
 import { DataType } from '../../../models/enums/DataType.enum';
+import {BehaviorSubject, Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-column-form',
   templateUrl: './column-form.component.html'
 })
-export class ColumnFormComponent implements OnInit {
+export class ColumnFormComponent implements OnInit, OnDestroy {
   @ViewChild('defaultupload')
   public uploadObj!: UploaderComponent;
   @ViewChild('Dialog')
@@ -34,10 +35,10 @@ export class ColumnFormComponent implements OnInit {
   isFormVisible = true;
   public dlgButtons: any[] = [];
   public fields = { text: 'type', value: 'id' };
-
+  private subsription: Subscription = new Subscription();
   public alignmentValues: ({ id: string; type: string })[];
   public dataTypeValues: ({ id: string; type: string })[];
-  dropdownValues = [];
+  dropdownValuesSubject = new BehaviorSubject([]);
 
   public dlgBtnClick: EmitType<object> = () => {
     this.dialogObj.hide();
@@ -59,7 +60,7 @@ export class ColumnFormComponent implements OnInit {
     this.form = this.formBuilder.group({
       name: [null, Validators.required],
       dataType: [null, Validators.required],
-      defaultValue: [DataType.TEXT],
+      defaultValue: [null],
       minWidth: [null, Validators.min(10)],
       fontSize: [null, Validators.min(10)],
       fontColor: [null],
@@ -71,6 +72,10 @@ export class ColumnFormComponent implements OnInit {
     this.addDropdownValue();
   }
 
+  ngOnDestroy(): void {
+    this.subsription.unsubscribe();
+  }
+
   ngOnInit(): void {
     this.dlgButtons.push({
       click: this.dlgBtnClick.bind(this),
@@ -79,20 +84,39 @@ export class ColumnFormComponent implements OnInit {
   }
 
   addDropdownValue(): void {
+    const control = new FormControl('Item Name');
     const item = {
       id: Date.now(),
-      control: new FormControl([''])
+      type: control.value
     };
-    this.dropdownValues.push({ id: item.id, value: item.control.value});
+    this.dropdownValuesSubject.next([...this.dropdownValuesSubject.value, item]);
     const dropdownValuesControl = this.form.controls.dropdownValues as FormArray;
-    dropdownValuesControl.push(item.control);
+    dropdownValuesControl.push(control);
+    const subscription = control.valueChanges.subscribe((title) => {
+      console.log('dskhdfjkfd');
+      const values = this.dropdownValuesSubject.value;
+      const index = values.findIndex(i => i.id === item.id);
+      values.splice(index, 1, {
+        id: item.id,
+        type: title
+      });
+      this.dropdownValuesSubject.next(values);
+    });
+    this.subsription.add(subscription);
   }
 
   removeDropdownValue(index: number): void {
-    this.dropdownValues.splice(index, 1);
+    const values = this.dropdownValuesSubject.value;
+    values.splice(index, 1);
+    this.dropdownValuesSubject.next(values);
 
     const dropdownValuesControl = this.form.controls.dropdownValues as FormArray;
     dropdownValuesControl.removeAt(index);
+  }
+
+  getDropdownControls(): FormControl[] {
+    const formArray = this.form.controls.dropdownValues as FormArray;
+    return formArray.controls as FormControl[];
   }
 
   public browseClick(): boolean {
@@ -113,13 +137,7 @@ export class ColumnFormComponent implements OnInit {
     this.isFormVisible = false;
   }
 
-  public getDefaultInputData(): string {
-    console.log(this.form.controls.defaultValue.value);
-
-    return this.form.controls.defaultValue.value;
-  }
-
-  public getFieldTypeData(): string {
+  public getFieldTypeData(): DataType {
     return this.form.controls.dataType.value;
   }
 
@@ -131,6 +149,7 @@ export class ColumnFormComponent implements OnInit {
     console.log('sum ???');
     this.formSubmitAttempt = true;
     if (this.form.valid) {
+      console.log('sum ???', this.form.value);
       this.hideDialog();
       this.form.reset();
     } else {

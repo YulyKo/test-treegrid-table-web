@@ -1,6 +1,8 @@
-import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { DataType } from 'src/models/enums/DataType.enum';
+import {Component, forwardRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {DataType} from 'src/models/enums/DataType.enum';
+import {Observable} from 'rxjs';
+import {DropDownListComponent} from '@syncfusion/ej2-angular-dropdowns/src/drop-down-list/dropdownlist.component';
 
 type OnChange = (value: string) => void;
 type OnTouched = () => void;
@@ -16,24 +18,26 @@ type OnTouched = () => void;
     }
   ]
 })
-export class DataInputComponent implements ControlValueAccessor {
-  @Input() type: DataType;
-  @Input() dropdownDataSource?: ({ id: string; type: string })[];
+export class DataInputComponent implements OnInit, ControlValueAccessor {
+  type: DataType;
 
+  @Input('type')
+  set _type(type: DataType) {
+    this.valueControl.reset('');
+    this.type = type;
+  }
+
+  @Input() dropdownDataSource?: Observable<({ id: string; type: string })[]>;
   dataType = DataType;
-
   valueControl = new FormControl('');
   onChange: OnChange;
   onTouched: OnTouched;
-  public fields = { text: 'type', value: 'id' };
-  readonly booleanDataSource = [
-    { id: 'true', name: 'true' },
-    { id: 'false', name: 'false' }
-  ];
+  public fields = {text: 'type', value: 'id'};
+  readonly booleanDataSource = [true, false];
 
-  constructor() {
+  ngOnInit(): void {
     this.valueControl.valueChanges.subscribe(value => {
-      this.onChange(value);
+      this.onChange?.(value);
     });
   }
 

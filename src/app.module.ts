@@ -9,7 +9,7 @@ import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
 import { DialogModule } from '@syncfusion/ej2-angular-popups';
-import { CheckBoxAllModule } from '@syncfusion/ej2-angular-buttons';
+import {CheckBoxAllModule, RadioButtonModule} from '@syncfusion/ej2-angular-buttons';
 
 import { AppService } from './service/app.service';
 import { AppComponent } from './components/app/app.component';
@@ -36,7 +36,8 @@ import { DataInputComponent } from './components/forms/data-input/data-input.com
     NumericTextBoxModule,
     ReactiveFormsModule,
     DialogModule,
-    CheckBoxAllModule
+    CheckBoxAllModule,
+    RadioButtonModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]
