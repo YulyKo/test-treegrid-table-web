@@ -59,7 +59,7 @@ export class ColumnFormComponent implements OnInit {
     this.form = this.formBuilder.group({
       name: [null, Validators.required],
       dataType: [null, Validators.required],
-      defaultValue: [null],
+      defaultValue: [DataType.TEXT],
       minWidth: [null, Validators.min(10)],
       fontSize: [null, Validators.min(10)],
       fontColor: [null],
@@ -83,7 +83,7 @@ export class ColumnFormComponent implements OnInit {
       id: Date.now(),
       control: new FormControl([''])
     };
-    this.dropdownValues.push(item);
+    this.dropdownValues.push({ id: item.id, value: item.control.value});
     const dropdownValuesControl = this.form.controls.dropdownValues as FormArray;
     dropdownValuesControl.push(item.control);
   }
@@ -114,6 +114,8 @@ export class ColumnFormComponent implements OnInit {
   }
 
   public getDefaultInputData(): string {
+    console.log(this.form.controls.defaultValue.value);
+
     return this.form.controls.defaultValue.value;
   }
 

@@ -18,15 +18,18 @@ type OnTouched = () => void;
 })
 export class DataInputComponent implements ControlValueAccessor {
   @Input() type: DataType;
+  @Input() dropdownDataSource?: ({ id: string; type: string })[];
+
   dataType = DataType;
 
   valueControl = new FormControl('');
   onChange: OnChange;
   onTouched: OnTouched;
   public fields = { text: 'type', value: 'id' };
-  booleanDataSource = {
-
-  };
+  readonly booleanDataSource = [
+    { id: 'true', name: 'true' },
+    { id: 'false', name: 'false' }
+  ];
 
   constructor() {
     this.valueControl.valueChanges.subscribe(value => {
