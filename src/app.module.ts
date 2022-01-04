@@ -8,6 +8,7 @@ import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
 import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
+import { ContextMenuModule, ToolbarModule } from '@syncfusion/ej2-angular-navigations';
 import { DialogModule } from '@syncfusion/ej2-angular-popups';
 import {CheckBoxAllModule, RadioButtonModule} from '@syncfusion/ej2-angular-buttons';
 
@@ -35,7 +36,9 @@ import { DataInputComponent } from './components/forms/data-input/data-input.com
     DatePickerModule,
     NumericTextBoxModule,
     ReactiveFormsModule,
+    ToolbarModule,
     DialogModule,
+    ContextMenuModule
     CheckBoxAllModule,
     RadioButtonModule
   ],
