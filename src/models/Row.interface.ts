@@ -1,4 +1,4 @@
-export default interface Row {
+export default interface IRow {
   // rowID: number;
   taskID: number;
   parentID?: number;

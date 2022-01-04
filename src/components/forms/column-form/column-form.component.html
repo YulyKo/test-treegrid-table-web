@@ -1,0 +1,125 @@
+<div class="control-section">
+  <div class="col-lg-12">
+    <div class="control_wrapper" id="control_wrapper" style="margin: 25px auto;">
+      <ejs-dialog id="reactDialog" #FormDialog width= '450px'
+                  [visible]="isFormVisible"
+                  [showCloseIcon]='false' target='.control-section'>
+        <form id="reactive" [formGroup]="form">
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input">
+              <input type="text" id="name" name="name" class="required" formControlName="name">
+              <span class="e-float-line"></span>
+              <label class="e-float-text e-label-top" for="name">Name</label>
+            </div>
+            <app-error-message [displayError]="isFieldValid('name')" errorMsg="* Please Enter your name">
+            </app-error-message>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input">
+              <ejs-dropdownlist #dropDownComponent id="dataType" [dataSource]="dataTypeValues" [fields]="fields" name="dataType" formControlName="dataType" placeholder="Data type"></ejs-dropdownlist>
+              <span class="e-float-line"></span>
+              <label class="e-float-text e-label-top" for="dataType">Data type</label>
+            </div>
+            <app-error-message [displayError]="isFieldValid('dataType')" errorMsg="* Enter data type">
+            </app-error-message>
+          </div>
+
+          <div *ngIf="getFieldTypeData() === dataType.DROPDOWN" class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input" formArrayName="dropdownValues">
+              <div style="display: flex;" *ngFor="let item of dropdownValues; let i = index">
+                <input type="text" [formControlName]="index" />
+                <button type="button" (click)="removeDropdownValue(index)">-</button>
+              </div>
+              <button type="button" (click)="addDropdownValue()">+</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input">
+              <app-data-input [type]="getDefaultInputData()" formControlName="defaultValue"></app-data-input>
+            </div>
+            <app-error-message [displayError]="isFieldValid('defaultValue')" errorMsg="* * Enter your email address">
+            </app-error-message>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input">
+              <input type="number" id="minWidth" name="minWidth" class="required" formControlName="minWidth">
+              <span class="e-float-line"></span>
+              <label class="e-float-text e-label-top" for="minWidth">Minimum column width(px)</label>
+            </div>
+            <app-error-message [displayError]="isFieldValid('minWidth')" errorMsg="* Enter minimun column widht">
+            </app-error-message>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input">
+              <input type="number" id="fontSize" name="fontSize" class="required" formControlName="fontSize">
+              <span class="e-float-line"></span>
+              <label class="e-float-text e-label-top" for="fontSize">Column font size(px)</label>
+            </div>
+            <app-error-message [displayError]="isFieldValid('fontSize')" errorMsg="So small number. It HAS be more than 10px">
+            </app-error-message>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span for="fontColor" class="e-float-text e-label-top">Choose font color</span>
+              <input
+                ejs-colorpicker
+                type="color"
+                value="#FFFFFF"
+                id="fontColor"
+                formControlName="fontColor"
+              />
+            </div>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span for="backgroundColor" class="e-float-text e-label-top">Choose background color</span>
+              <input
+                ejs-colorpicker
+                type="color"
+                value="#FFFFFF"
+                id="backgroundColor"
+                formControlName="backgroundColor"
+              />
+            </div>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="e-float-input">
+              <ejs-dropdownlist #dropDownComponent [dataSource]="alignmentValues" [fields]="fields" name="alignment" formControlName="alignment" placeholder="Alignment"></ejs-dropdownlist>
+            </div>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span class="e-float-text e-label-top" 
+                for="textWrap"
+                >Text-wrap</span>
+              <ejs-checkbox
+                labelPosition="Before"
+                [checked]="false"
+                name="ColChecked"
+                id="textWrap"
+                formControlName="textWrap"
+              ></ejs-checkbox>
+            </div>
+          </div>
+
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="submitBtn">
+              <button type="button" class="submit-btn e-btn" id="submit-btn" (click)= "close()">Close</button>
+              <button type="submit" class="submit-btn e-btn" id="submit-btn" [disabled]="form.invalid" (click)= "Submit()">Submit</button>
+              <div class="desc"><span>*This button is not a submit type and the form submit handled from externally.</span></div>
+            </div>
+          </div>
+        </form>
+      </ejs-dialog>
+    </div>
+  </div>
+</div>

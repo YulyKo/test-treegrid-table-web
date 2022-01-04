@@ -1,7 +1,7 @@
 import { Alignment } from "./enums/Alignment.enum";
 import { Colors } from "./enums/Colors.enum";
 
-export default interface Column {
+export default interface IColumn {
   id: number;
   name: string;
   dataType: string | number | boolean | Array<any>;

@@ -8,17 +8,23 @@ import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
 import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
-import { ToolbarModule } from '@syncfusion/ej2-angular-navigations';
 import { DialogModule } from '@syncfusion/ej2-angular-popups';
+import { CheckBoxAllModule } from '@syncfusion/ej2-angular-buttons';
 
 import { AppService } from './service/app.service';
 import { AppComponent } from './components/app/app.component';
 import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
+import { ColumnFormComponent } from './components/forms/column-form/column-form.component';
+import { ErrorMessageComponent } from './components/forms/error-message/error-message.component';
+import { DataInputComponent } from './components/forms/data-input/data-input.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TreeGridComponent
+    TreeGridComponent,
+    ColumnFormComponent,
+    ErrorMessageComponent,
+    DataInputComponent
   ],
   imports: [
     BrowserModule,
@@ -29,8 +35,8 @@ import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
     DatePickerModule,
     NumericTextBoxModule,
     ReactiveFormsModule,
-    ToolbarModule,
-    DialogModule
+    DialogModule,
+    CheckBoxAllModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]

@@ -1,0 +1,7 @@
+<ng-container [ngSwitch]="type">
+  <input type="text" [formControl]="valueControl" *ngSwitchCase="dataType.TEXT"/>
+  <input type="number" [formControl]="valueControl" *ngSwitchCase="dataType.NUMBER"/>
+  <ejs-dropdownlist #dropDownComponent [dataSource]="booleanDataSource" [fields]="fields" name="ColAlign" [formControl]="valueControl" *ngSwitchCase="dataType.BOOLEAN"></ejs-dropdownlist>
+  <input [formControl]="valueControl" *ngSwitchCase="dataType.BOOLEAN"/>
+  <input [formControl]="valueControl" *ngSwitchCase="dataType.TEXT"/>
+</ng-container>
