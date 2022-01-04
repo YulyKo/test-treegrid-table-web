@@ -38,7 +38,7 @@ import { DataInputComponent } from './components/forms/data-input/data-input.com
     ReactiveFormsModule,
     ToolbarModule,
     DialogModule,
-    ContextMenuModule
+    ContextMenuModule,
     CheckBoxAllModule,
     RadioButtonModule
   ],

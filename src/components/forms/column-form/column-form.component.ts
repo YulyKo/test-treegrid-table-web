@@ -9,7 +9,8 @@ import {BehaviorSubject, Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-column-form',
-  templateUrl: './column-form.component.html'
+  templateUrl: './column-form.component.html',
+  styleUrls: ['./column-form.component.less']
 })
 export class ColumnFormComponent implements OnInit, OnDestroy {
   @ViewChild('defaultupload')
@@ -32,7 +33,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   };
   private formSubmitAttempt = false;
   public uploadInput = '';
-  isFormVisible = true;
+  isFormVisible = false;
   public dlgButtons: any[] = [];
   public fields = { text: 'type', value: 'id' };
   private subsription: Subscription = new Subscription();

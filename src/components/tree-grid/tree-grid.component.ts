@@ -16,8 +16,7 @@ import {
 } from '@syncfusion/ej2-angular-treegrid';
 import { Dialog } from '@syncfusion/ej2-angular-popups';
 import {ClickEventArgs, MenuEventArgs} from '@syncfusion/ej2-angular-navigations';
-import { EditService, PageService, ToolbarService, TreeGridComponent as TreeGridComp } from '@syncfusion/ej2-angular-treegrid';
-import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
+import {ColumnFormComponent} from '../forms/column-form/column-form.component';
 
 @Component({
   selector: 'app-tree-grid',
@@ -36,6 +35,9 @@ export class TreeGridComponent implements OnInit {
   @ViewChild('treegrid')
   public treegrid!: TreeGridComp;
 
+  @ViewChild('columnForm')
+  columnForm: ColumnFormComponent;
+
   public data: object[] = [];
   public editSettings: EditSettingsModel | any;
   public toolbar: string[] = [];
@@ -50,11 +52,25 @@ export class TreeGridComponent implements OnInit {
 
   public contextMenuItems: ContextMenuItemModel[] = [
     {
-      text: 'Add/Delete/Edit (Dialog)  ',
+      text: 'Add Next (Dialog)  ',
       target: '.e-content',
-      id: 'rndeDialog'
+      id: 'addNext'
     },
-    { text: 'Add/Delete/Edit (Row)  ', target: '.e-content', id: 'rndeRow' },
+    {
+      text: 'Add Child (Dialog)  ',
+      target: '.e-content',
+      id: 'addChild'
+    },
+    {
+      text: 'Edit (Dialog)  ',
+      target: '.e-content',
+      id: 'editRow'
+    },
+    {
+      text: 'Delete',
+      target: '.e-content',
+      id: 'delRow'
+    },
 
     { text: 'Multi-Select', target: '.e-content', id: 'rmultiSelect' },
     {text: 'Copy', target: '.e-content', id: 'rcopy'},
@@ -69,10 +85,10 @@ export class TreeGridComponent implements OnInit {
     },
     // { text: 'Style', target: '.e-headercontent', id: 'style' },
 
-    {text: 'EditCol ', target: '.e-headercontent', id: 'editCol'},
-    {text: 'NewCol ', target: '.e-headercontent', id: 'newCol'},
+    {text: 'Edit Column', target: '.e-headercontent', id: 'editCol'},
+    {text: 'New Column', target: '.e-headercontent', id: 'newCol'},
 
-    {text: 'DeleteCol ', target: '.e-headercontent', id: 'deleteCol'},
+    {text: 'Delete Column', target: '.e-headercontent', id: 'deleteCol'},
     {text: 'Show', target: '.e-headercontent', id: 'columnChooser'},
     {text: 'Freeze', target: '.e-headercontent', id: 'freeze'},
 
@@ -111,6 +127,11 @@ export class TreeGridComponent implements OnInit {
 
   contextMenuClick(args: MenuEventArgs): void {
     console.log('i am a life!!!', args.item.text, args.item.id);
+    switch (args.item.id) {
+      case 'newCol':
+        this.columnForm.showDialog();
+        break;
+    }
   }
 
   createFormGroup(data: ITaskModel): FormGroup {
