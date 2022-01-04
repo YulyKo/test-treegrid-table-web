@@ -10,15 +10,22 @@ import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
 import { ContextMenuModule, ToolbarModule } from '@syncfusion/ej2-angular-navigations';
 import { DialogModule } from '@syncfusion/ej2-angular-popups';
+import {CheckBoxAllModule, RadioButtonModule} from '@syncfusion/ej2-angular-buttons';
 
 import { AppService } from './service/app.service';
 import { AppComponent } from './components/app/app.component';
 import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
+import { ColumnFormComponent } from './components/forms/column-form/column-form.component';
+import { ErrorMessageComponent } from './components/forms/error-message/error-message.component';
+import { DataInputComponent } from './components/forms/data-input/data-input.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TreeGridComponent
+    TreeGridComponent,
+    ColumnFormComponent,
+    ErrorMessageComponent,
+    DataInputComponent
   ],
   imports: [
     BrowserModule,
@@ -32,6 +39,8 @@ import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
     ToolbarModule,
     DialogModule,
     ContextMenuModule
+    CheckBoxAllModule,
+    RadioButtonModule
   ],
   providers: [AppService],
   bootstrap: [AppComponent]

@@ -5,7 +5,7 @@ import { DataUtil } from '@syncfusion/ej2-data';
 import {ContextMenuOpenEventArgs, SaveEventArgs, ContextMenuItemModel
 } from '@syncfusion/ej2-angular-grids';
 import { FormGroup, AbstractControl, FormControl, Validators } from '@angular/forms';
-import Row from 'src/models/Row.interface';
+import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import { sampleData } from '../../service/db';
 import {
@@ -16,6 +16,8 @@ import {
 } from '@syncfusion/ej2-angular-treegrid';
 import { Dialog } from '@syncfusion/ej2-angular-popups';
 import {ClickEventArgs, MenuEventArgs} from '@syncfusion/ej2-angular-navigations';
+import { EditService, PageService, ToolbarService, TreeGridComponent as TreeGridComp } from '@syncfusion/ej2-angular-treegrid';
+import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
 
 @Component({
   selector: 'app-tree-grid',
@@ -44,7 +46,7 @@ export class TreeGridComponent implements OnInit {
   public submitClicked = false;
   public selectionOptions: SelectionSettingsModel;
   // public pp: ContextMenuItem
-  rows: Row[];
+  rows: IRow[];
 
   public contextMenuItems: ContextMenuItemModel[] = [
     {
