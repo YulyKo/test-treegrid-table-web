@@ -183,7 +183,13 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     return this.form.controls.dataType.value;
   }
 
-  public Submit(): void {
+  public onSubmit(): void {
+    const dataType = this.form.get('dataType').value;
+    if (dataType !== this.dataType.DROPDOWN) {
+      const formArray = this.form.get('dropdownValues') as FormArray;
+      formArray.clear();
+      this.dropdownValuesSubject.next([]);
+    }
     this.onFormSubmit();
   }
 
@@ -200,10 +206,10 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       name: "dsdsdsds"
       textWrap: true
     * */
-    console.log('sum ???');
     this.formSubmitAttempt = true;
     if (this.form.valid) {
       console.log('sum ???', this.form.value);
+      this.columnService.createColumn(this.form.value);
       this.hideDialog();
       this.form.reset();
     } else {
@@ -227,137 +233,4 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       }
     });
   }
-  // public saveColumn(event: Event): void {
-  //   console.log('bdfd HERE');
-  //   if (this.checkNewEdit === 'edit') {
-  //     console.log('this.checkNewEdit:', this.checkNewEdit);
-  //
-  //     // let colorP = 'yellow';
-  //     let catched = false;
-  //     // myArray.forEach(val => myClonedArray.push(Object.assign({}, val)));
-  //     this.listHeaders.forEach((a: any) => {
-  //       delete a.customAttributes;
-  //     });
-  //     this.listHeaders.forEach((r: any) => {
-  //       if (!catched) {
-  //         console.log('catched:', catched);
-  //         catched = true;
-  //         const style = document.createElement('style');
-  //         style.type = 'text/css';
-  //         style.innerHTML = `.e-treegrid .e-headercell.cssClassaa { background-color: ${this.ColBColor};
-  //           color:${this.ColFColor};
-  //         }`;
-  //         document.body.append(style);
-  //       }
-  //
-  //       if (r.field === this.columnField) {
-  //         console.log('r.field:', r.field, 'columnField:', this.columnField);
-  //         r.headerText = this.ColName;
-  //         r.type = this.ColType;
-  //         r.textAlign = this.ColAlign;
-  //         r.minWidth = this.ColMinWidth;
-  //         r.customAttributes = { class: 'cssClassaa' };
-  //       }
-  //     });
-  //
-  //     // console.log('------listHeadersC-------:', this.listHeadersC);
-  //     // console.log('this.listHeadersC.map((object) => ({ ...object })) bbbbbbbbbbbbbb:',b);
-  //     // this.treeColumns = [];
-  //     // console.log('tre', this.treeColumns);
-  //     // this.treegrid.refreshColumns();
-  //     // let c = [...this.listHeadersC.map((object) => ({ ...object }))];
-  //     // console.log('------b-------:', b);
-  //     // console.log('------c-------:', c);
-  //     //  let g=this.listHeadersC;
-  //     //  console.log('g:',g)
-  //
-  //     // this.treegrid.refreshColumns();
-  //     this.treeColumns = [];
-  //     // this.treegrid.refreshColumns();
-  //
-  //     this.treeColumns = this.listHeaders;
-  //     // this.treeColumns = [...c]; //this.listHeadersC;
-  //     console.log('------[this.treeColumns]-------:', this.treeColumns);
-  //
-  //     this.treegrid.refreshColumns();
-  //     this.textWrap = this.ColChecked;
-  //   }
-  //   if (this.checkNewEdit === 'add') {
-  //     // let column: any = { field: this.ColName, headerText: this.ColName, width: this.ColMinWidth, };
-  //     // this.treeColumns.push(column);
-  //     this.listHeaders.forEach((a: any) => {
-  //       delete a.customAttributes;
-  //     });
-  //     if (this.ColBColor !== '' && this.ColFColor !== '') {
-  //       console.log
-  //         'this.ColBColor.charAt(5)+this.ColBColor.charAt(4)+this.ColBColor.charAt(3) +
-  //         this.ColFColor.charAt(3)+this.ColFColor.charAt(4)+this.ColFColor.charAt(5):',
-  //
-  //         this.ColBColor.charAt(5) +
-  //         this.ColBColor.charAt(4) +
-  //         this.ColBColor.charAt(3) +
-  //         this.ColFColor.charAt(3) +
-  //         this.ColFColor.charAt(4) +
-  //         this.ColFColor.charAt(5)
-  //       );
-  //       const style = document.createElement('style');
-  //       style.type = 'text/css';
-  //       style.innerHTML = `.e-treegrid .e-headercell.cssClassaa${
-  //         this.ColBColor.charAt(5) +
-  //         this.ColBColor.charAt(4) +
-  //         this.ColBColor.charAt(3) +
-  //         this.ColFColor.charAt(3) +
-  //         this.ColFColor.charAt(4) +
-  //         this.ColFColor.charAt(5)
-  //       } { background-color: ${this.ColBColor};
-  //           color:${this.ColFColor};
-  //         }`;
-  //       document.body.append(style);
-  //       this.listHeaders.push({
-  //         field: this.ColName,
-  //         headerText: this.ColName,
-  //         type: this.ColType,
-  //         textAlign: this.ColAlign,
-  //         minWidth: this.ColMinWidth,
-  //         customAttributes: {
-  //           class: `cssClassaa${
-  //             this.ColBColor.charAt(5) +
-  //             this.ColBColor.charAt(4) +
-  //             this.ColBColor.charAt(3) +
-  //             this.ColFColor.charAt(3) +
-  //             this.ColFColor.charAt(4) +
-  //             this.ColFColor.charAt(5)
-  //           }`
-  //         }
-  //       });
-  //       console.log('@@@@@@@this.listHeaders:@@@@@@@@@', this.listHeaders);
-  //     } else {
-  //       this.listHeaders.push({
-  //         field: this.ColName,
-  //         headerText: this.ColName,
-  //         type: this.ColType,
-  //         textAlign: this.ColAlign,
-  //         minWidth: this.ColMinWidth
-  //       });
-  //     }
-  //
-  //     // const b = this.listHeadersC.map((object) => ({ ...object }));
-  //
-  //     // this.treeColumns = b;
-  //     this.treeColumns = [];
-  //     this.treeColumns = this.listHeaders;
-  //
-  //     this.textWrap = this.ColChecked;
-  //     this.treegrid.refreshColumns();
-  //     // console.log('AddColumn:', this.treeColumns);
-  //     // this.treegrid.refreshColumns();
-  //   }
-  //
-  //   this.showEditColumn = false;
-  //
-  //   this.ejDialog.hide();
-  //   //  this.hideDialog();
-  //
-  //   // this.treegrid.refreshColumns();
-  // }
 }

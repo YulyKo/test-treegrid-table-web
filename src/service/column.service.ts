@@ -9,7 +9,7 @@ import {Observable} from 'rxjs';
   providedIn: 'root'
 })
 export class ColumnService {
-  private readonly API_URL = environment.API_URL;
+  private readonly API_URL = `${ environment.API_URL }/columns`;
 
   public columns: IColumn[];
   constructor(
@@ -21,11 +21,15 @@ export class ColumnService {
   }
 
   getAllColumns(): Observable<IColumn[]> {
-    return this.http.get<IColumn[]>(`${ this.API_URL }/columns`).pipe(
+    return this.http.get<IColumn[]>(this.API_URL).pipe(
       tap((data) => {
         console.log(data);
         this.columns = data as IColumn[];
       })
     );
+  }
+
+  createColumn(columnData: Omit<IColumn, 'id'>): void {
+    this.http.post<IColumn>(this.API_URL, columnData).subscribe();
   }
 }

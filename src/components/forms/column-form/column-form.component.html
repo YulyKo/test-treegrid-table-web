@@ -125,7 +125,7 @@
           <div class="form-group" style="padding-top: 11px;">
             <div class="submitBtn">
               <button type="button" class="submit-btn e-btn" id="close-btn" (click)= "close()">Close</button>
-              <button type="submit" class="submit-btn e-btn" id="submit-btn" [disabled]="form.invalid" (click)= "Submit()">Submit</button>
+              <button type="submit" class="submit-btn e-btn" id="submit-btn" [disabled]="form.invalid" (click)= "onSubmit()">Submit</button>
               <div class="desc"><span>*This button is not a submit type and the form submit handled from externally.</span></div>
             </div>
           </div>
