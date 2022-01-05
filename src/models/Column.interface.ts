@@ -1,6 +1,7 @@
 import { Alignment } from './enums/Alignment.enum';
+import {IDropdownValue} from './DropdownValues.interface';
 
-export default interface IColumn {
+export interface IColumn {
   id: string;
   field: string | number;
   name: string;
@@ -11,6 +12,6 @@ export default interface IColumn {
   fontColor: string;
   backgroundColor: string;
   alignment: Alignment | string;
-  dropdownValues: Array<string> | [];
+  dropdownValues: Array<IDropdownValue>;
   textWrap: boolean;
 }

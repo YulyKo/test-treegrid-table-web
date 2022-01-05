@@ -8,7 +8,7 @@ import {DataType} from '../../../models/enums/DataType.enum';
 import {BehaviorSubject, Subscription} from 'rxjs';
 import {Column} from '@syncfusion/ej2-angular-treegrid';
 import {ColumnService} from '../../../service/column.service';
-import IColumn from '../../../models/Column.interface';
+import {IColumn} from '../../../models/Column.interface';
 import {Alignment} from '../../../models/enums/Alignment.enum';
 
 @Component({
@@ -64,20 +64,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       {id: this.dataType.NUMBER, type: this.dataType.NUMBER},
       {id: this.dataType.TEXT, type: this.dataType.TEXT},
     ];
-
-    this.form = this.formBuilder.group({
-      name: [null, Validators.required],
-      dataType: [null, Validators.required],
-      defaultValue: [null],
-      minWidth: [null, Validators.min(10)],
-      fontSize: [null, Validators.min(10)],
-      fontColor: [null],
-      backgroundColor: [null],
-      alignment: [Alignment.center],
-      textWrap: [null],
-      dropdownValues: new FormArray([])
-    });
-    this.addDropdownValue();
+    this.setEmptyForm();
   }
 
   ngOnDestroy(): void {
@@ -91,17 +78,19 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  addDropdownValue(): void {
-    const control = new FormControl('Item Name');
-    const item = {
+  createDropdownValue(): void {
+    this.addDropdownValue({
       id: Date.now(),
-      type: control.value
-    };
+      type: 'Item Name'
+    });
+  }
+
+  addDropdownValue(item: { id: number, type: string }): void {
+    const control = new FormControl(item.type);
     this.dropdownValuesSubject.next([...this.dropdownValuesSubject.value, item]);
     const dropdownValuesControl = this.form.controls.dropdownValues as FormArray;
     dropdownValuesControl.push(control);
     const subscription = control.valueChanges.subscribe((title) => {
-      console.log('dskhdfjkfd');
       const values = this.dropdownValuesSubject.value;
       const index = values.findIndex(i => i.id === item.id);
       values.splice(index, 1, {
@@ -127,28 +116,42 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     return formArray.controls as FormControl[];
   }
 
-  public setFormData(columnData: IColumn): void {
-    console.log(columnData);
-    this.form.reset({
-      name: columnData.name,
-      dataType: columnData.dataType,
-      defaultValue: columnData.defaultValue,
-      minWidth: columnData.minWidth,
-      fontSize: columnData.fontSize,
-      fontColor: columnData.fontColor,
-      backgroundColor: columnData.backgroundColor,
-      alignment: columnData.alignment,
-      textWrap: columnData.textWrap,
-      dropdownValues: columnData.dropdownValues
+  initForm(formData: IColumn): void {
+    this.form = this.formBuilder.group({
+      name: [ formData.name, Validators.required],
+      dataType: [formData.dataType, Validators.required],
+      defaultValue: [formData.defaultValue],
+      minWidth: [formData.minWidth, Validators.min(10)],
+      fontSize: [formData.fontSize, Validators.min(10)],
+      fontColor: [formData.fontColor],
+      backgroundColor: [formData.backgroundColor],
+      alignment: [formData.alignment],
+      textWrap: [formData.textWrap],
+      dropdownValues: new FormArray( [])
     });
-    this.form.setErrors(null);
+    this.clearDropDownValues();
+
+    for (const dropdownValue of formData.dropdownValues) {
+      this.addDropdownValue(dropdownValue);
+    }
+
+    this.form.controls.dataType.valueChanges.subscribe(() => {
+      this.clearDropDownValues();
+    });
+  }
+
+  clearDropDownValues(): void {
+    const formArray = this.form.controls.dropdownValues as FormArray;
+    formArray.clear();
+    this.dropdownValuesSubject.next([]);
+    this.form.controls.defaultValue.setValue(null);
   }
 
   setEmptyForm(): void {
-    this.setFormData({
+    this.initForm({
       name: '',
       dataType: null,
-      defaultValue: '',
+      defaultValue: null,
       minWidth: null,
       fontSize: null,
       fontColor: '',
@@ -157,12 +160,13 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       textWrap: false,
       dropdownValues: []
     } as IColumn);
+    this.createDropdownValue();
   }
 
   public showDialog(columnData?: Column): void {
     if (columnData) {
       const column = this.columnService.findByColumnField(columnData.field) as IColumn;
-      this.setFormData(column);
+      this.initForm(column);
     } else {
       this.setEmptyForm();
     }
@@ -184,34 +188,13 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   }
 
   public onSubmit(): void {
-    const dataType = this.form.get('dataType').value;
-    if (dataType !== this.dataType.DROPDOWN) {
-      const formArray = this.form.get('dropdownValues') as FormArray;
-      formArray.clear();
-      this.dropdownValuesSubject.next([]);
-    }
-    this.onFormSubmit();
-  }
-
-  public onFormSubmit(): void {
-    /*
-    * alignment: ""
-      backgroundColor: ""
-      dataType: "Text"
-      defaultValue: "ddd"
-      dropdownValues: [null]
-      fontColor: ""
-      fontSize: null
-      minWidth: null
-      name: "dsdsdsds"
-      textWrap: true
-    * */
     this.formSubmitAttempt = true;
     if (this.form.valid) {
-      console.log('sum ???', this.form.value);
-      this.columnService.createColumn(this.form.value);
+      this.columnService.createColumn({
+        ...this.form.value,
+        dropdownValues: this.dropdownValuesSubject.value
+      });
       this.hideDialog();
-      this.form.reset();
     } else {
       this.validateAllFormFields(this.form);
     }
@@ -219,7 +202,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
 
   // universal validation
   isFieldValid(field: string): any {
-    return ((!this.form.get(field)?.valid && this.form.get(field)?.touched) ||
+    return ((this.form.get(field)?.invalid && this.form.get(field)?.touched) ||
       (this.form.get(field)?.untouched && this.formSubmitAttempt));
   }
 

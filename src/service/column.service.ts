@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import IColumn from '../models/Column.interface';
+import {IColumn} from '../models/Column.interface';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {map, tap} from 'rxjs/operators';

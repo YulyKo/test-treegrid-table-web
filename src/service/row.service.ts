@@ -3,7 +3,7 @@ import IRow from '../models/Row.interface';
 import {environment} from '../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import IColumn from '../models/Column.interface';
+import {IColumn} from '../models/Column.interface';
 import {tap, map} from 'rxjs/operators';
 import {ColumnService} from './column.service';
 import {DataType} from '../models/enums/DataType.enum';

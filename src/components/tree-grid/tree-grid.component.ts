@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DataUtil } from '@syncfusion/ej2-data';
 import { ContextMenuItemModel, QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
 import { FormControl } from '@angular/forms';
 import IRow from 'src/models/Row.interface';
@@ -17,7 +16,7 @@ import {
 } from '@syncfusion/ej2-angular-treegrid';
 import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
 import { ColumnFormComponent } from '../forms/column-form/column-form.component';
-import IColumn from '../../models/Column.interface';
+import {IColumn} from '../../models/Column.interface';
 import { DataType } from '../../models/enums/DataType.enum';
 import { ColumnService } from '../../service/column.service';
 import { RowFormComponent } from '../forms/row-form/row-form.component';
@@ -25,6 +24,7 @@ import { RowService } from '../../service/row.service';
 import {WindowService} from '../../service/window.service';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
+import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 
 @Component({
   selector: 'app-tree-grid',
@@ -50,64 +50,19 @@ export class TreeGridComponent implements OnInit {
   @ViewChild('rowForm')
   rowForm: RowFormComponent;
 
-  public dataType = DataType;
+  public readonly dataType = DataType;
+  public readonly contextMenuItems = CONTEXT_MENU_ITEMS;
+
   public editSettings: EditSettingsModel | any;
   public pageSettings: PageSettingsModel;
-  public progressDistinctData: Array<any>;
-  public priorityDistinctData: Array<any>;
   public selectionOptions: SelectionSettingsModel;
-  // public pp: ContextMenuItem
-  public rows: IRow[];
   public windowHeight$: Observable<number>;
   public windowWidth$: Observable<number>;
 
-  public contextMenuItems: ContextMenuItemModel[] = [
-    {
-      text: 'Add Next (Dialog)  ',
-      target: '.e-content',
-      id: 'addNext'
-    },
-    {
-      text: 'Add Child (Dialog)  ',
-      target: '.e-content',
-      id: 'addChild'
-    },
-    {
-      text: 'Edit (Dialog)  ',
-      target: '.e-content',
-      id: 'editRow'
-    },
-    {
-      text: 'Delete',
-      target: '.e-content',
-      id: 'delRow'
-    },
+  public isLoading = true;
 
-    { text: 'Multi-Select', target: '.e-content', id: 'rmultiSelect' },
-    {text: 'Copy', target: '.e-content', id: 'rcopy'},
-
-    {text: 'Paste Sibling', target: '.e-content', id: 'rsibling'},
-    {text: 'Paste Child', target: '.e-content', id: 'rchild'},
-    {
-      id: 'cut',
-      text: 'Cut',
-      target: '.e-content',
-      iconCss: 'e-cm-icons e-cut'
-    },
-    // { text: 'Style', target: '.e-headercontent', id: 'style' },
-
-    {text: 'Edit Column', target: '.e-headercontent', id: 'editCol'},
-    {text: 'New Column', target: '.e-headercontent', id: 'newCol'},
-
-    {text: 'Delete Column', target: '.e-headercontent', id: 'deleteCol'},
-    {text: 'Show', target: '.e-headercontent', id: 'columnChooser'},
-    {text: 'Freeze', target: '.e-headercontent', id: 'freeze'},
-
-    {text: 'Filter', target: '.e-headercontent', id: 'filter'},
-    {text: 'Multi-Sort', target: '.e-headercontent', id: 'multiSort'}
-  ];
-
-  columns: IColumn[];
+  columns: IColumn[] = [];
+  rows: IRow[] = [];
 
   constructor(
     private appService: AppService,
@@ -117,10 +72,11 @@ export class TreeGridComponent implements OnInit {
   ) {
     this.columnService.getAllColumns().subscribe((columns) => {
       console.log(columns);
-      this.columns = columns;
       this.rowService.getAllRows().subscribe((rows) => {
         console.log(rows);
+        this.columns = columns;
         this.rows = rows;
+        this.isLoading = false;
       });
     });
     this.windowHeight$ = windowService.height$.pipe(
@@ -138,7 +94,7 @@ export class TreeGridComponent implements OnInit {
       allowAdding: true,
       allowDeleting: true,
       mode: 'Dialog',
-      newRowPosition: 'Child',
+      // newRowPosition: 'Child',
       showDeleteConfirmDialog: true,
       // newRowPosition: 'Child'
     };
@@ -148,10 +104,7 @@ export class TreeGridComponent implements OnInit {
       enableToggle: true
     };
 
-    // treegrid
     this.pageSettings = { pageCount: 5, pageSize: 90 };
-    // this.progressDistinctData = DataUtil.distinct(this.rows, 'progress', true);
-    // this.priorityDistinctData = DataUtil.distinct(this.rows, 'priority', true);
   }
 
   contextMenuClick(args: any): void {
@@ -166,11 +119,16 @@ export class TreeGridComponent implements OnInit {
         this.columnForm.showDialog(columnData);
         break;
       case 'addNext':
-        this.showRowDialog(args);
+        this.showRowDialog(args, 'next');
+        break;
+      case 'addChild':
+        this.showRowDialog(args, 'child');
+        break;
+
     }
   }
 
-  showRowDialog(args: any): void {
+  showRowDialog(args: any, rowStatus: string): void {
     const path = [];
     let row = args.rowInfo.rowData;
 
@@ -179,7 +137,7 @@ export class TreeGridComponent implements OnInit {
       row = row.parentItem;
     }
 
-    this.rowForm.showDialog('next', path);
+    this.rowForm.showDialog(rowStatus, path);
   }
 
   dateValidator(): any {
@@ -230,7 +188,6 @@ export class TreeGridComponent implements OnInit {
 
       this.treegrid.paste(copiedData, rowIndex, cellIndex);
     }
-    // event.item => class ItemModel
   }
 
 }

@@ -1,6 +1,7 @@
 <div class="control-section">
     <section #container>
         <ejs-treegrid
+            *ngIf="!isLoading"
             #treegrid
             [dataSource]="rows"
             childMapping="subrows"
