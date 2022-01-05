@@ -8,6 +8,12 @@ import {tap, map} from 'rxjs/operators';
 import {ColumnService} from './column.service';
 import {DataType} from '../models/enums/DataType.enum';
 
+interface ICreatePayload {
+  rowData: IRow;
+  path: Array<string>;
+  rowStatus: 'next' | 'child';
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,4 +45,22 @@ export class RowService {
     );
   }
 
+  createRow(rowData: ICreatePayload): void {
+    // {
+    //     "rowData": {
+    //             "name": "TTTT",
+    //             "startDate": 1486072800000,
+    //             "endDate": 1486418400000,
+    //             "progress": 100,
+    //             "duration": 5,
+    //             "priority": "Normal",
+    //             "approved": false,
+    //             "isInExpandState": true,
+    //             "subrows": []
+    //     },
+    //     "path": ["39e3e82b-ed17-4c17-9ddb-59dac8a396e0-1", "39e3e82b-ed17-4c17-9ddb-59dac8a396e0-2"],
+    //     "rowStatus": "next"
+    // }
+    this.http.post<ICreatePayload>(this.API_URL, rowData).subscribe();
+  }
 }
