@@ -1,22 +1,30 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-
-import { Browser } from '@syncfusion/ej2-base';
 import { DataUtil } from '@syncfusion/ej2-data';
-import {ContextMenuOpenEventArgs, SaveEventArgs, ContextMenuItemModel
-} from '@syncfusion/ej2-angular-grids';
-import { FormGroup, AbstractControl, FormControl, Validators } from '@angular/forms';
+import { ContextMenuItemModel, QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
+import { FormControl } from '@angular/forms';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
-import { sampleData } from '../../service/db';
 import {
-  EditService, PageService, ToolbarService, TreeGridComponent as TreeGridComp,
-  EditSettingsModel,
+  Column,
+  ContextMenuService,
+  EditService,
+  EditSettingsModel, InfiniteScrollService,
+  PageService,
   PageSettingsModel,
-  SelectionSettingsModel, ContextMenuService,
+  SelectionSettingsModel,
+  ToolbarService,
+  TreeGridComponent as TreeGridComp,
 } from '@syncfusion/ej2-angular-treegrid';
-import { Dialog } from '@syncfusion/ej2-angular-popups';
-import {ClickEventArgs, MenuEventArgs} from '@syncfusion/ej2-angular-navigations';
-import {ColumnFormComponent} from '../forms/column-form/column-form.component';
+import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
+import { ColumnFormComponent } from '../forms/column-form/column-form.component';
+import IColumn from '../../models/Column.interface';
+import { DataType } from '../../models/enums/DataType.enum';
+import { ColumnService } from '../../service/column.service';
+import { RowFormComponent } from '../forms/row-form/row-form.component';
+import { RowService } from '../../service/row.service';
+import {WindowService} from '../../service/window.service';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-tree-grid',
@@ -27,7 +35,8 @@ import {ColumnFormComponent} from '../forms/column-form/column-form.component';
     ToolbarService,
     EditService,
     PageService,
-    ContextMenuService
+    ContextMenuService,
+    InfiniteScrollService
   ]
 })
 export class TreeGridComponent implements OnInit {
@@ -38,17 +47,19 @@ export class TreeGridComponent implements OnInit {
   @ViewChild('columnForm')
   columnForm: ColumnFormComponent;
 
-  public data: object[] = [];
+  @ViewChild('rowForm')
+  rowForm: RowFormComponent;
+
+  public dataType = DataType;
   public editSettings: EditSettingsModel | any;
-  public toolbar: string[] = [];
   public pageSettings: PageSettingsModel;
-  public taskForm: FormGroup;
   public progressDistinctData: Array<any>;
   public priorityDistinctData: Array<any>;
-  public submitClicked = false;
   public selectionOptions: SelectionSettingsModel;
   // public pp: ContextMenuItem
-  rows: IRow[];
+  public rows: IRow[];
+  public windowHeight$: Observable<number>;
+  public windowWidth$: Observable<number>;
 
   public contextMenuItems: ContextMenuItemModel[] = [
     {
@@ -96,13 +107,31 @@ export class TreeGridComponent implements OnInit {
     {text: 'Multi-Sort', target: '.e-headercontent', id: 'multiSort'}
   ];
 
+  columns: IColumn[];
+
   constructor(
-    private appService: AppService
-  ) {}
+    private appService: AppService,
+    private columnService: ColumnService,
+    private rowService: RowService,
+    private windowService: WindowService
+  ) {
+    this.columnService.getAllColumns().subscribe((columns) => {
+      console.log(columns);
+      this.columns = columns;
+      this.rowService.getAllRows().subscribe((rows) => {
+        console.log(rows);
+        this.rows = rows;
+      });
+    });
+    this.windowHeight$ = windowService.height$.pipe(
+      map(height => height - this.windowService.getScrollbarWidth() - 30)
+    );
+    this.windowWidth$ = windowService.width$.pipe(
+      map(width => width - this.windowService.getScrollbarWidth())
+    );
+  }
 
   ngOnInit(): void {
-    // init data
-    this.data = sampleData;
     // for edit and create
     this.editSettings = {
       allowEditing: true,
@@ -120,29 +149,37 @@ export class TreeGridComponent implements OnInit {
     };
 
     // treegrid
-    this.pageSettings = { pageCount: 5 };
-    this.progressDistinctData = DataUtil.distinct(sampleData, 'progress', true);
-    this.priorityDistinctData = DataUtil.distinct(sampleData, 'priority', true);
+    this.pageSettings = { pageCount: 5, pageSize: 90 };
+    // this.progressDistinctData = DataUtil.distinct(this.rows, 'progress', true);
+    // this.priorityDistinctData = DataUtil.distinct(this.rows, 'priority', true);
   }
 
-  contextMenuClick(args: MenuEventArgs): void {
+  contextMenuClick(args: any): void {
     console.log('i am a life!!!', args.item.text, args.item.id);
     switch (args.item.id) {
+      // column
       case 'newCol':
         this.columnForm.showDialog();
         break;
+      case 'editCol':
+        const columnData = args.column as Column;
+        this.columnForm.showDialog(columnData);
+        break;
+      case 'addNext':
+        this.showRowDialog(args);
     }
   }
 
-  createFormGroup(data: ITaskModel): FormGroup {
-    return new FormGroup({
-      taskID: new FormControl(data.taskID, Validators.required),
-      startDate: new FormControl(data.startDate, this.dateValidator()),
-      taskName: new FormControl(data.taskName, Validators.required),
-      duration: new FormControl(data.duration),
-      progress: new FormControl(data.progress),
-      priority: new FormControl(data.priority),
-    });
+  showRowDialog(args: any): void {
+    const path = [];
+    let row = args.rowInfo.rowData;
+
+    while (row) {
+      path.unshift(row.id);
+      row = row.parentItem;
+    }
+
+    this.rowForm.showDialog('next', path);
   }
 
   dateValidator(): any {
@@ -152,18 +189,14 @@ export class TreeGridComponent implements OnInit {
     };
   }
 
-  actionBegin(args: SaveEventArgs): void {
-    if (args.requestType === 'beginEdit' || args.requestType === 'add') {
-      this.submitClicked = false;
-      this.taskForm = this.createFormGroup(args.rowData);
-    }
-    if (args.requestType === 'save') {
-      this.submitClicked = true;
-      if (this.taskForm.valid) {
-        args.data = this.taskForm.value;
-      } else {
-        args.cancel = true;
-      }
+  customizeSelf(args: QueryCellInfoEventArgs): void {
+    if (args.column.field !== 'index' && args.column.field !== 'checkbox') {
+      const column = this.columnService.findByColumnField(args.column.field);
+      const cellElement = args.cell as HTMLElement;
+      cellElement.style.setProperty('--cell-bg-color', column.backgroundColor);
+      cellElement.style.setProperty('--cell-color', column.fontColor);
+      cellElement.style.setProperty('--cell-font-size', `${ column.fontSize }px`);
+      cellElement.classList.add('column-cell');
     }
   }
 
@@ -200,26 +233,4 @@ export class TreeGridComponent implements OnInit {
     // event.item => class ItemModel
   }
 
-  actionComplete(args): void {}
-
-  get taskID(): AbstractControl { return this.taskForm.get('taskID'); }
-
-  get taskName(): AbstractControl { return this.taskForm.get('taskName'); }
-
-  get startDate(): AbstractControl { return this.taskForm.get('startDate'); }
 }
-
-export interface ITaskModel {
-  taskID?: number;
-  taskName?: string;
-  startDate?: Date;
-  duration?: number;
-  progress?: number;
-  priority?: string;
-}
-
-export type NewParentRow = {
-  text: 'Add Parent';
-  tooltipText: 'Add Parent';
-  id: 'Add Parent';
-};

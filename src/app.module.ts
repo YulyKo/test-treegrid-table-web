@@ -10,7 +10,7 @@ import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
 import { ContextMenuModule, ToolbarModule } from '@syncfusion/ej2-angular-navigations';
 import { DialogModule } from '@syncfusion/ej2-angular-popups';
-import {CheckBoxAllModule, RadioButtonModule} from '@syncfusion/ej2-angular-buttons';
+import { CheckBoxAllModule, RadioButtonModule } from '@syncfusion/ej2-angular-buttons';
 
 import { AppService } from './service/app.service';
 import { AppComponent } from './components/app/app.component';
@@ -18,6 +18,10 @@ import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
 import { ColumnFormComponent } from './components/forms/column-form/column-form.component';
 import { ErrorMessageComponent } from './components/forms/error-message/error-message.component';
 import { DataInputComponent } from './components/forms/data-input/data-input.component';
+import { ColumnService } from './service/column.service';
+import { RowFormComponent } from './components/forms/row-form/row-form.component';
+import {RowService} from './service/row.service';
+import {WindowService} from './service/window.service';
 
 @NgModule({
   declarations: [
@@ -25,7 +29,8 @@ import { DataInputComponent } from './components/forms/data-input/data-input.com
     TreeGridComponent,
     ColumnFormComponent,
     ErrorMessageComponent,
-    DataInputComponent
+    DataInputComponent,
+    RowFormComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +47,12 @@ import { DataInputComponent } from './components/forms/data-input/data-input.com
     CheckBoxAllModule,
     RadioButtonModule
   ],
-  providers: [AppService],
+  providers: [
+    AppService,
+    ColumnService,
+    RowService,
+    WindowService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

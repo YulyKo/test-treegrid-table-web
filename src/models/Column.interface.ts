@@ -1,13 +1,16 @@
-import { Alignment } from "./enums/Alignment.enum";
-import { Colors } from "./enums/Colors.enum";
+import { Alignment } from './enums/Alignment.enum';
 
 export default interface IColumn {
-  id: number;
+  id: string;
+  field: string | number;
   name: string;
-  dataType: string | number | boolean | Array<any>;
-  dafautValue?: string | number | boolean | Array<any>;
-  minWith: number;
-  fontColor: Colors;
-  backgoundColor: Colors;
-  alginment: Alignment;
+  dataType: string;
+  defaultValue?: string | number | boolean | Array<string> | null;
+  minWidth: number | null;
+  fontSize: number;
+  fontColor: string;
+  backgroundColor: string;
+  alignment: Alignment | string;
+  dropdownValues: Array<string> | [];
+  textWrap: boolean;
 }

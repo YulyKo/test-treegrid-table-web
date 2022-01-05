@@ -23,7 +23,7 @@ export class DataInputComponent implements OnInit, ControlValueAccessor {
 
   @Input('type')
   set _type(type: DataType) {
-    this.valueControl.reset('');
+    // this.valueControl.reset('');
     this.type = type;
   }
 
@@ -33,7 +33,7 @@ export class DataInputComponent implements OnInit, ControlValueAccessor {
   onChange: OnChange;
   onTouched: OnTouched;
   public fields = {text: 'type', value: 'id'};
-  readonly booleanDataSource = [true, false];
+  readonly booleanDataSource = ['true', 'false'];
 
   ngOnInit(): void {
     this.valueControl.valueChanges.subscribe(value => {

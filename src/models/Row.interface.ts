@@ -1,7 +1,6 @@
 export default interface IRow {
-  // rowID: number;
-  taskID: number;
-  parentID?: number;
+  index: number;
+  id: string;
   // https://www.smashingmagazine.com/2021/01/dynamic-static-typing-typescript/
-  [key: string]: string | boolean | Date | Array<string> | number;
+  [key: string]: string | boolean | Date | Array<string | IRow> | number;
 }

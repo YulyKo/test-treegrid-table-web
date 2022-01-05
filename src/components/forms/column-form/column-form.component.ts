@@ -1,11 +1,15 @@
-import {Component, Inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { DialogComponent } from '@syncfusion/ej2-angular-popups';
-import { UploaderComponent } from '@syncfusion/ej2-angular-inputs';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { EmitType } from '@syncfusion/ej2-base';
-import { DropDownListComponent } from '@syncfusion/ej2-angular-dropdowns';
-import { DataType } from '../../../models/enums/DataType.enum';
+import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {DialogComponent} from '@syncfusion/ej2-angular-popups';
+import {UploaderComponent} from '@syncfusion/ej2-angular-inputs';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {EmitType} from '@syncfusion/ej2-base';
+import {DropDownListComponent} from '@syncfusion/ej2-angular-dropdowns';
+import {DataType} from '../../../models/enums/DataType.enum';
 import {BehaviorSubject, Subscription} from 'rxjs';
+import {Column} from '@syncfusion/ej2-angular-treegrid';
+import {ColumnService} from '../../../service/column.service';
+import IColumn from '../../../models/Column.interface';
+import {Alignment} from '../../../models/enums/Alignment.enum';
 
 @Component({
   selector: 'app-column-form',
@@ -20,8 +24,6 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   @ViewChild('dropDownComponent')
   public dropDownComponent!: DropDownListComponent;
 
-  // @Input()
-  // private formFields: object;
   public dataType = DataType;
   public form!: FormGroup;
   public width = '335px';
@@ -45,12 +47,16 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     this.dialogObj.hide();
   }
 
-  constructor(@Inject(FormBuilder) public formBuilder: FormBuilder) {
+  constructor(
+    @Inject(FormBuilder) public formBuilder: FormBuilder,
+    private columnService: ColumnService
+  ) {
     this.alignmentValues = [
       {id: 'right', type: 'Right'},
       {id: 'left', type: 'Left'},
       {id: 'Center', type: 'Center'}
     ];
+
     this.dataTypeValues = [
       {id: this.dataType.BOOLEAN, type: this.dataType.BOOLEAN},
       {id: this.dataType.DATE, type: this.dataType.DATE},
@@ -58,6 +64,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       {id: this.dataType.NUMBER, type: this.dataType.NUMBER},
       {id: this.dataType.TEXT, type: this.dataType.TEXT},
     ];
+
     this.form = this.formBuilder.group({
       name: [null, Validators.required],
       dataType: [null, Validators.required],
@@ -66,7 +73,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       fontSize: [null, Validators.min(10)],
       fontColor: [null],
       backgroundColor: [null],
-      alignment: [null],
+      alignment: [Alignment.center],
       textWrap: [null],
       dropdownValues: new FormArray([])
     });
@@ -120,13 +127,47 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     return formArray.controls as FormControl[];
   }
 
-  public browseClick(): boolean {
-    // document.getElementsByClassName('e-file-select-wrap')[0].querySelector('button').click();
-    return false;
+  public setFormData(columnData: IColumn): void {
+    console.log(columnData);
+    this.form.reset({
+      name: columnData.name,
+      dataType: columnData.dataType,
+      defaultValue: columnData.defaultValue,
+      minWidth: columnData.minWidth,
+      fontSize: columnData.fontSize,
+      fontColor: columnData.fontColor,
+      backgroundColor: columnData.backgroundColor,
+      alignment: columnData.alignment,
+      textWrap: columnData.textWrap,
+      dropdownValues: columnData.dropdownValues
+    });
+    this.form.setErrors(null);
   }
 
-  public showDialog(): void {
+  setEmptyForm(): void {
+    this.setFormData({
+      name: '',
+      dataType: null,
+      defaultValue: '',
+      minWidth: null,
+      fontSize: null,
+      fontColor: '',
+      backgroundColor: '',
+      alignment: '',
+      textWrap: false,
+      dropdownValues: []
+    } as IColumn);
+  }
+
+  public showDialog(columnData?: Column): void {
+    if (columnData) {
+      const column = this.columnService.findByColumnField(columnData.field) as IColumn;
+      this.setFormData(column);
+    } else {
+      this.setEmptyForm();
+    }
     this.dialogObj.show();
+    this.dialogObj.refreshPosition();
   }
 
   public hideDialog(): void {
@@ -147,6 +188,18 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   }
 
   public onFormSubmit(): void {
+    /*
+    * alignment: ""
+      backgroundColor: ""
+      dataType: "Text"
+      defaultValue: "ddd"
+      dropdownValues: [null]
+      fontColor: ""
+      fontSize: null
+      minWidth: null
+      name: "dsdsdsds"
+      textWrap: true
+    * */
     console.log('sum ???');
     this.formSubmitAttempt = true;
     if (this.form.valid) {

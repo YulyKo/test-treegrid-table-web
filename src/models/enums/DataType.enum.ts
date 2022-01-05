@@ -1,7 +1,7 @@
 export enum DataType {
-  DROPDOWN = 'Dropdown',
-  TEXT = 'Text',
-  NUMBER = 'Number',
-  BOOLEAN = 'Boolean',
-  DATE = 'Date'
+  DROPDOWN = 'dropdown',
+  TEXT = 'text',
+  NUMBER = 'number',
+  BOOLEAN = 'boolean',
+  DATE = 'date'
 }
