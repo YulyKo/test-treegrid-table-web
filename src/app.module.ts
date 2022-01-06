@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 
-import { TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
+import {ReorderService, TreeGridModule} from '@syncfusion/ej2-angular-treegrid';
 import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
@@ -51,7 +51,8 @@ import {WindowService} from './service/window.service';
     AppService,
     ColumnService,
     RowService,
-    WindowService
+    WindowService,
+    ReorderService
   ],
   bootstrap: [AppComponent]
 })
