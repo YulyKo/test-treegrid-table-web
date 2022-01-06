@@ -1,8 +1,10 @@
-import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {DialogComponent} from '@syncfusion/ej2-angular-popups';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {ColumnService} from '../../../service/column.service';
 import {IColumn} from '../../../models/Column.interface';
+import IRow, {CellValue} from '../../../models/Row.interface';
+import {DataType} from '../../../models/enums/DataType.enum';
 
 @Component({
   selector: 'app-row-form',
@@ -14,6 +16,9 @@ export class RowFormComponent {
   public rowDialog!: DialogComponent;
   public form: FormGroup;
   public isFormVisible = false;
+  public rowStatus: string;
+  public rowPath: string[];
+  public requestMode: 'update' | 'create';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,21 +39,43 @@ export class RowFormComponent {
     return this.columns.filter(column => this.form.get(column.field.toString()));
   }
 
-  createForm(): void {
+  createForm(row: Partial<IRow> = {}): void {
     this.form = this.formBuilder.group({});
 
     for (const column of this.columns) {
-      const control = this.formBuilder.control(column.defaultValue);
-      this.form.addControl(column.field.toString(), control);
+      const field = column.field.toString();
+      const value = row[field] ?? column.defaultValue;
+      const control = this.formBuilder.control(this.formatValue(column, value));
+      this.form.addControl(field, control);
     }
   }
 
-  public showDialog(rowStatus: string, path: string[]): void {
+  private formatValue(column: IColumn, value: CellValue): CellValue {
+    if (column.dataType === DataType.DATE) {
+      return new Date(value as number);
+    }
+    return value;
+  }
+
+  public showCreateDialog(status: string, path: string[]): void {
+    this.requestMode = 'create';
+    this.rowStatus = status;
+    this.rowPath = path;
+
     this.createForm();
+    this.rowDialog.show();
+  }
+
+  public showUpdateDialog(row: IRow, path: string[]): void {
+    this.requestMode = 'update';
+    this.rowPath = path;
+
+    this.createForm(row);
     this.rowDialog.show();
   }
 
   public hideDialog(): void {
     this.rowDialog.hide();
+    this.form = null;
   }
 }

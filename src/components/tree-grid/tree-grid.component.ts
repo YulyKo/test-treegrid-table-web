@@ -95,8 +95,8 @@ export class TreeGridComponent implements OnInit {
   ngOnInit(): void {
     // for edit and create
     this.editSettings = {
-      allowEditing: true,
-      allowAdding: true,
+      allowEditing: false,
+      allowAdding: false,
       allowDeleting: true,
       mode: 'Dialog',
       // newRowPosition: 'Child',
@@ -124,32 +124,35 @@ export class TreeGridComponent implements OnInit {
         this.columnForm.showDialog(columnData);
         break;
       case 'addNext':
-        this.showRowDialog(args, 'next');
+        this.showCreateRowDialog(args, 'next');
         break;
       case 'addChild':
-        this.showRowDialog(args, 'child');
+        this.showCreateRowDialog(args, 'child');
         break;
-
+      case 'editRow':
+        this.showEditRowDialog(args);
     }
   }
 
-  showRowDialog(args: any, rowStatus: string): void {
+  showCreateRowDialog(args: any, rowStatus: string): void {
+    this.rowForm.showCreateDialog(rowStatus, this.getRowPath(args.rowInfo.rowData));
+  }
+
+  showEditRowDialog(args: any): void {
+    const row = args.rowInfo.rowData;
+    this.rowForm.showUpdateDialog(row, this.getRowPath(row));
+  }
+
+  private getRowPath(initRow: IRow): string[] {
     const path = [];
-    let row = args.rowInfo.rowData;
+    let row = initRow;
 
     while (row) {
       path.unshift(row.id);
-      row = row.parentItem;
+      row = row.parentItem as any as IRow;
     }
 
-    this.rowForm.showDialog(rowStatus, path);
-  }
-
-  dateValidator(): any {
-    return (control: FormControl): null | object  => {
-      return control.value && control.value.getFullYear &&
-      (1900 <= control.value.getFullYear() && control.value.getFullYear() <=  2099) ? null : { OrderDate: { value : control.value}};
-    };
+    return path;
   }
 
   customizeSelf(args: QueryCellInfoEventArgs): void {
