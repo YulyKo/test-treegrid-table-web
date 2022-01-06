@@ -23,10 +23,10 @@ export const CONTEXT_MENU_ITEMS: ContextMenuItemModel[] = [
   },
 
   { text: 'Multi-Select', target: '.e-content', id: 'rmultiSelect' },
-  {text: 'Copy', target: '.e-content', id: 'rcopy'},
+  {text: 'Copy Rows', target: '.e-content', id: 'copyRows'},
 
-  {text: 'Paste Sibling', target: '.e-content', id: 'rsibling'},
-  {text: 'Paste Child', target: '.e-content', id: 'rchild'},
+  {text: 'Paste Rows Next', target: '.e-content', id: 'rowPasteNext'},
+  {text: 'Paste Rows as Child', target: '.e-content', id: 'rowPasteChild'},
   {
     id: 'cut',
     text: 'Cut',

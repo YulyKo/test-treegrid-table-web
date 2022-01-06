@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import { ContextMenuItemModel, QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
 import { FormControl } from '@angular/forms';
 import IRow from 'src/models/Row.interface';
@@ -26,6 +26,7 @@ import {Observable} from 'rxjs';
 import {first, map, tap} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
+import {ClipboardService} from '../../service/clipboard.service';
 
 @Component({
   selector: 'app-tree-grid',
@@ -44,6 +45,9 @@ export class TreeGridComponent implements OnInit {
 
   @ViewChild('treegrid')
   public treegrid!: TreeGridComp;
+
+  @ViewChildren('treegrid', { read: TreeGridComp })
+  public queriedTreegrid: QueryList<TreeGridComp>;
 
   @ViewChild('columnForm')
   columnForm: ColumnFormComponent;
@@ -69,11 +73,19 @@ export class TreeGridComponent implements OnInit {
     private appService: AppService,
     private columnService: ColumnService,
     private rowService: RowService,
-    private windowService: WindowService
+    private windowService: WindowService,
+    private clipboardService: ClipboardService
   ) {
     this.rowService.rows$.subscribe((rows) => {
       this.rows = rows;
-      this.isLoading = false;
+
+      if (this.isLoading) {
+        this.isLoading = false;
+
+        this.queriedTreegrid.changes.subscribe(() => {
+          this.clipboardService.init(this.treegrid);
+        });
+      }
     });
 
     this.columnService.columns$.subscribe((columns) => {
@@ -145,16 +157,27 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'delRow':
         this.deleteRow(args.rowInfo.rowData);
+        break;
+      case 'copyRows':
+        this.clipboardService.copy();
+        break;
+      case 'rowPasteNext':
+        this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
+        break;
+      case 'rowPasteChild':
+        this.clipboardService.paste('child', this.rowService.getRowPath(args.rowInfo.rowData));
+        break;
     }
+    this.treegrid.clearSelection();
   }
 
   showCreateRowDialog(args: any, rowStatus: string): void {
-    this.rowForm.showCreateDialog(rowStatus, this.getRowPath(args.rowInfo.rowData));
+    this.rowForm.showCreateDialog(rowStatus, this.rowService.getRowPath(args.rowInfo.rowData));
   }
 
   showEditRowDialog(args: any): void {
     const row = args.rowInfo.rowData;
-    this.rowForm.showUpdateDialog(row, this.getRowPath(row));
+    this.rowForm.showUpdateDialog(row, this.rowService.getRowPath(row));
   }
 
   deleteColumn(field: string): void {
@@ -167,7 +190,7 @@ export class TreeGridComponent implements OnInit {
 
   deleteRow(row: IRow): void {
     this.showConfirm('Delete Row', `Are you sure that you want to delete row "${row.index}"`, () => {
-      this.rowService.removeRow(this.getRowPath(row));
+      this.rowService.removeRow(this.rowService.getRowPath(row));
     });
   }
 
@@ -190,18 +213,6 @@ export class TreeGridComponent implements OnInit {
       closeOnEscape: true,
       animationSettings: {effect: 'Zoom'}
     });
-  }
-
-  private getRowPath(initRow: IRow): string[] {
-    const path = [];
-    let row = initRow;
-
-    while (row) {
-      path.unshift(row.id);
-      row = row.parentItem as any as IRow;
-    }
-
-    return path;
   }
 
   customizeSelf(args: QueryCellInfoEventArgs): void {

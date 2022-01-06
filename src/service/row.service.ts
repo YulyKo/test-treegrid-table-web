@@ -65,4 +65,20 @@ export class RowService {
   removeRow(path: string[]): void {
     this.http.request('DELETE', this.API_URL, { body: { paths: [path] } }).subscribe();
   }
+
+  getRowPath(initRow: IRow): string[] {
+    const path = [];
+    let row = initRow;
+
+    while (row) {
+      path.unshift(row.id);
+      row = row.parentItem as any as IRow;
+    }
+
+    return path;
+  }
+
+  paste(rowStatus: string, toPath: string[], fromPaths: Array<string[]>): void {
+    this.http.post<ICreatePayload>(`${this.API_URL}/paste`, { fromPaths, rowStatus, toPath }).subscribe();
+  }
 }
