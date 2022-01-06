@@ -19,7 +19,7 @@ interface ICreatePayload {
   providedIn: 'root'
 })
 export class RowService {
-  private readonly API_URL = environment.API_URL;
+  private readonly API_URL = `${environment.API_URL}/rows`;
 
   private rowsSubject = new Subject<IRow[]>();
   public rows: IRow[] = [];
@@ -50,25 +50,15 @@ export class RowService {
   }
 
   getAllRows(): Observable<IRow[]> {
-    return this.http.get<IRow[]>(`${ this.API_URL }/rows`);
+    return this.http.get<IRow[]>(this.API_URL);
   }
 
-  createRow(rowData: ICreatePayload): void {
-    // {
-    //     "rowData": {
-    //             "name": "TTTT",
-    //             "startDate": 1486072800000,
-    //             "endDate": 1486418400000,
-    //             "progress": 100,
-    //             "duration": 5,
-    //             "priority": "Normal",
-    //             "approved": false,
-    //             "isInExpandState": true,
-    //             "subrows": []
-    //     },
-    //     "path": ["39e3e82b-ed17-4c17-9ddb-59dac8a396e0-1", "39e3e82b-ed17-4c17-9ddb-59dac8a396e0-2"],
-    //     "rowStatus": "next"
-    // }
-    this.http.post<ICreatePayload>(this.API_URL, rowData).subscribe();
+  createRow(rowStatus: string, rowData: IRow, path: string[]): void {
+    rowData.subrows = [];
+    this.http.post<ICreatePayload>(this.API_URL, { rowData, rowStatus, path }).subscribe();
+  }
+
+  updateRow(rowData: ICreatePayload, path: string[]): void {
+    this.http.patch<ICreatePayload>(this.API_URL, { rowData, path }).subscribe();
   }
 }

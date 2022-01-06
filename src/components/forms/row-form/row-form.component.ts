@@ -5,6 +5,7 @@ import {ColumnService} from '../../../service/column.service';
 import {IColumn} from '../../../models/Column.interface';
 import IRow, {CellValue} from '../../../models/Row.interface';
 import {DataType} from '../../../models/enums/DataType.enum';
+import {RowService} from '../../../service/row.service';
 
 @Component({
   selector: 'app-row-form',
@@ -22,14 +23,9 @@ export class RowFormComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private columnService: ColumnService
-  ) {
-    this.createForm();
-  }
-
-  onSubmit(): void {
-    console.log('erhfkfek');
-  }
+    private columnService: ColumnService,
+    private rowService: RowService
+  ) {}
 
   get columns(): IColumn[] {
     return this.columnService.columns;
@@ -77,5 +73,17 @@ export class RowFormComponent {
   public hideDialog(): void {
     this.rowDialog.hide();
     this.form = null;
+  }
+
+  onSubmit(): void {
+    switch (this.requestMode) {
+      case 'create':
+        this.rowService.createRow(this.rowStatus, this.form.value, this.rowPath);
+        break;
+      case 'update':
+        this.rowService.updateRow(this.form.value, this.rowPath);
+        break;
+    }
+    this.hideDialog();
   }
 }
