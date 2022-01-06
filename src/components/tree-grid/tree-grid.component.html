@@ -15,6 +15,7 @@
             [selectionSettings]="selectionOptions"
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
+            (contextMenuOpen)="contextMenuBeforeOpen($event)"
             (queryCellInfo)="customizeSelf($event)"
         >
             <e-columns>

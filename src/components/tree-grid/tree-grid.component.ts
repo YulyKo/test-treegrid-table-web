@@ -14,7 +14,7 @@ import {
   ToolbarService,
   TreeGridComponent as TreeGridComp,
 } from '@syncfusion/ej2-angular-treegrid';
-import { ClickEventArgs } from '@syncfusion/ej2-angular-navigations';
+import {BeforeOpenCloseMenuEventArgs, ClickEventArgs} from '@syncfusion/ej2-angular-navigations';
 import { ColumnFormComponent } from '../forms/column-form/column-form.component';
 import {IColumn} from '../../models/Column.interface';
 import { DataType } from '../../models/enums/DataType.enum';
@@ -112,8 +112,15 @@ export class TreeGridComponent implements OnInit {
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
 
+  public contextMenuBeforeOpen(args: any): void {
+    const isRow = !!args.rowInfo.row;
+    const isSystemField = this.isSystemColumn(args.column.field);
+    const display = isRow || isSystemField ? 'none' : 'block';
+    args.element.querySelector('#editCol').style.display = display;
+    args.element.querySelector('#deleteCol').style.display = display;
+  }
+
   contextMenuClick(args: any): void {
-    console.log('i am a life!!!', args.item.text, args.item.id);
     switch (args.item.id) {
       // column
       case 'newCol':
@@ -164,28 +171,34 @@ export class TreeGridComponent implements OnInit {
   customizeSelf(args: QueryCellInfoEventArgs): void {
     const field = args.column.field;
 
-    if (field !== 'index' && field !== 'checkbox') {
-      const cellElement = args.cell as HTMLElement;
-      cellElement.classList.add('column-cell');
-
-      const initialColumn = this.columnService.findByColumnField(field);
-
-      if (!initialColumn) {
-        return;
-      }
-
-      this.syncColumnStyles(cellElement, initialColumn);
-
-      const subscription = this.columnService.columns$.subscribe(() => {
-        const column = this.columnService.findByColumnField(field);
-
-        if (column) {
-          this.syncColumnStyles(cellElement, column);
-        } else {
-          subscription.unsubscribe();
-        }
-      });
+    if (this.isSystemColumn(field)) {
+      return;
     }
+
+    const cellElement = args.cell as HTMLElement;
+    cellElement.classList.add('column-cell');
+
+    const initialColumn = this.columnService.findByColumnField(field);
+
+    if (!initialColumn) {
+      return;
+    }
+
+    this.syncColumnStyles(cellElement, initialColumn);
+
+    const subscription = this.columnService.columns$.subscribe(() => {
+      const column = this.columnService.findByColumnField(field);
+
+      if (column) {
+        this.syncColumnStyles(cellElement, column);
+      } else {
+        subscription.unsubscribe();
+      }
+    });
+  }
+
+  private isSystemColumn(field: string): boolean {
+    return ['checkbox', 'index'].includes(field);
   }
 
   syncColumnStyles(el: HTMLElement, column: IColumn): void {
