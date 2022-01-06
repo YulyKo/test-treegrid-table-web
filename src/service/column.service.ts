@@ -43,4 +43,9 @@ export class ColumnService {
       this.columnsSubject.next(columns);
     });
   }
+
+  removeByField(field: string): void {
+    const ids = [this.findByColumnField(field).id];
+    this.http.request('DELETE', this.API_URL, { body: { ids } }).subscribe();
+  }
 }

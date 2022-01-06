@@ -123,6 +123,9 @@ export class TreeGridComponent implements OnInit {
         const columnData = args.column as Column;
         this.columnForm.showDialog(columnData);
         break;
+      case 'deleteCol':
+        this.columnService.removeByField(args.column.field);
+        break;
       case 'addNext':
         this.showCreateRowDialog(args, 'next');
         break;
@@ -162,13 +165,27 @@ export class TreeGridComponent implements OnInit {
       const cellElement = args.cell as HTMLElement;
       cellElement.classList.add('column-cell');
 
-      this.syncColumnStyles(cellElement, field);
-      this.columnService.columns$.subscribe(() => this.syncColumnStyles(cellElement, field));
+      const initialColumn = this.columnService.findByColumnField(field);
+
+      if (!initialColumn) {
+        return;
+      }
+
+      this.syncColumnStyles(cellElement, initialColumn);
+
+      const subscription = this.columnService.columns$.subscribe(() => {
+        const column = this.columnService.findByColumnField(field);
+
+        if (column) {
+          this.syncColumnStyles(cellElement, column);
+        } else {
+          subscription.unsubscribe();
+        }
+      });
     }
   }
 
-  syncColumnStyles(el: HTMLElement, columnField: string): void {
-    const column = this.columnService.findByColumnField(columnField);
+  syncColumnStyles(el: HTMLElement, column: IColumn): void {
     el.style.setProperty('--cell-bg-color', column.backgroundColor);
     el.style.setProperty('--cell-color', column.fontColor);
     el.style.setProperty('--cell-font-size', `${ column.fontSize }px`);
