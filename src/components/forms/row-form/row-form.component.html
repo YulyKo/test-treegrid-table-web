@@ -1,0 +1,24 @@
+<div class="control-section">
+  <div class="col-lg-12">
+    <div class="control_wrapper" id="control_wrapper" style="margin: 25px auto;">
+      <ejs-dialog
+        class="column-dialog"
+        id="reactDialog"
+        #rowDialog
+        width= '450px'
+        [visible]="isFormVisible"
+        [showCloseIcon]='false' target='.control-section'>
+        <form id="reactive" [formGroup]="form">
+          <h1>I AM A LIVE</h1>
+          <div class="form-group" style="padding-top: 11px;">
+            <div class="submitBtn">
+              <button type="button" class="submit-btn e-btn" id="close-btn" (click)= "hideDialog()">Close</button>
+              <button type="submit" class="submit-btn e-btn" id="submit-btn" [disabled]="form.invalid" (click)= "onSubmit()">Submit</button>
+              <div class="desc"><span>*This button is not a submit type and the form submit handled from externally.</span></div>
+            </div>
+          </div>
+        </form>
+      </ejs-dialog>
+    </div>
+  </div>
+</div>
