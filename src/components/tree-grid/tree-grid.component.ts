@@ -134,6 +134,9 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'editRow':
         this.showEditRowDialog(args);
+        break;
+      case 'delRow':
+        this.rowService.removeRow(this.getRowPath(args.rowInfo.rowData));
     }
   }
 

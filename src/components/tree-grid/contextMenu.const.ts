@@ -2,22 +2,22 @@ import {ContextMenuItemModel} from '@syncfusion/ej2-angular-grids';
 
 export const CONTEXT_MENU_ITEMS: ContextMenuItemModel[] = [
   {
-    text: 'Add Next (Dialog)  ',
+    text: 'Add Next Row  ',
     target: '.e-content',
     id: 'addNext'
   },
   {
-    text: 'Add Child (Dialog)  ',
+    text: 'Add Child Row',
     target: '.e-content',
     id: 'addChild'
   },
   {
-    text: 'Edit (Dialog)  ',
+    text: 'Edit Row',
     target: '.e-content',
     id: 'editRow'
   },
   {
-    text: 'Delete',
+    text: 'Delete Row',
     target: '.e-content',
     id: 'delRow'
   },
@@ -36,7 +36,7 @@ export const CONTEXT_MENU_ITEMS: ContextMenuItemModel[] = [
   // { text: 'Style', target: '.e-headercontent', id: 'style' },
 
   {text: 'Edit Column', target: '.e-headercontent', id: 'editCol'},
-  {text: 'New Column', target: '.e-headercontent', id: 'newCol'},
+  {text: 'Add Column', target: '.e-headercontent', id: 'newCol'},
 
   {text: 'Delete Column', target: '.e-headercontent', id: 'deleteCol'},
   {text: 'Show', target: '.e-headercontent', id: 'columnChooser'},

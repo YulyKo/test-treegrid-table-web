@@ -61,4 +61,8 @@ export class RowService {
   updateRow(rowData: ICreatePayload, path: string[]): void {
     this.http.patch<ICreatePayload>(this.API_URL, { rowData, path }).subscribe();
   }
+
+  removeRow(path: string[]): void {
+    this.http.request('DELETE', this.API_URL, { body: { paths: [path] } }).subscribe();
+  }
 }
