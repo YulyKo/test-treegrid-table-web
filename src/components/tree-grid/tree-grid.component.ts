@@ -25,6 +25,7 @@ import {WindowService} from '../../service/window.service';
 import {Observable} from 'rxjs';
 import {first, map, tap} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
+import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 
 @Component({
   selector: 'app-tree-grid',
@@ -131,7 +132,7 @@ export class TreeGridComponent implements OnInit {
         this.columnForm.showDialog(columnData);
         break;
       case 'deleteCol':
-        this.columnService.removeByField(args.column.field);
+        this.deleteColumn(args.column.field);
         break;
       case 'addNext':
         this.showCreateRowDialog(args, 'next');
@@ -143,7 +144,7 @@ export class TreeGridComponent implements OnInit {
         this.showEditRowDialog(args);
         break;
       case 'delRow':
-        this.rowService.removeRow(this.getRowPath(args.rowInfo.rowData));
+        this.deleteRow(args.rowInfo.rowData);
     }
   }
 
@@ -154,6 +155,41 @@ export class TreeGridComponent implements OnInit {
   showEditRowDialog(args: any): void {
     const row = args.rowInfo.rowData;
     this.rowForm.showUpdateDialog(row, this.getRowPath(row));
+  }
+
+  deleteColumn(field: string): void {
+    const column = this.columnService.findByColumnField(field);
+
+    this.showConfirm('Delete Column', `Are you sure that you want to delete column "${column.name}"`, () => {
+      this.columnService.remove(column);
+    });
+  }
+
+  deleteRow(row: IRow): void {
+    this.showConfirm('Delete Row', `Are you sure that you want to delete row "${row.index}"`, () => {
+      this.rowService.removeRow(this.getRowPath(row));
+    });
+  }
+
+  showConfirm(title: string, content: string, onOk: () => void): void {
+    const dialog = DialogUtility.confirm({
+      title,
+      content,
+      okButton: {
+        text: 'OK',
+        click(): void {
+          dialog.close();
+          onOk();
+        }
+      },
+      cancelButton: {
+        text: 'Cancel',
+        click: () => dialog.close()
+      },
+      showCloseIcon: false,
+      closeOnEscape: true,
+      animationSettings: {effect: 'Zoom'}
+    });
   }
 
   private getRowPath(initRow: IRow): string[] {
