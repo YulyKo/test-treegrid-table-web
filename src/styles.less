@@ -72,12 +72,12 @@ body,
   top: 30%;
 }
 
-.column-cell {
-  color: var(--cell-color);
+.column-cell.column-cell {
   font-size: var(--cell-font-size);
 }
 
-.column-cell:not(.e-selectionbackground){
+.column-cell:not(.e-selectionbackground) {
+  color: var(--cell-color) !important;
   background-color: var(--cell-bg-color);
 };
 

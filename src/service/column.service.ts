@@ -33,6 +33,10 @@ export class ColumnService {
     this.http.post<IColumn>(this.API_URL, columnData).subscribe();
   }
 
+  updateColumn(id: string, columnData: Omit<IColumn, 'id'>): void {
+    this.http.patch<IColumn>(`${this.API_URL}/${id}`, columnData).subscribe();
+  }
+
   loadColumns(): void {
     merge(this.getAllColumns(), this.socketService.columnUpdate$).subscribe((columns) => {
       this.columns = columns;

@@ -153,14 +153,22 @@ export class TreeGridComponent implements OnInit {
   }
 
   customizeSelf(args: QueryCellInfoEventArgs): void {
-    if (args.column.field !== 'index' && args.column.field !== 'checkbox') {
-      const column = this.columnService.findByColumnField(args.column.field);
+    const field = args.column.field;
+
+    if (field !== 'index' && field !== 'checkbox') {
       const cellElement = args.cell as HTMLElement;
-      cellElement.style.setProperty('--cell-bg-color', column.backgroundColor);
-      cellElement.style.setProperty('--cell-color', column.fontColor);
-      cellElement.style.setProperty('--cell-font-size', `${ column.fontSize }px`);
       cellElement.classList.add('column-cell');
+
+      this.syncColumnStyles(cellElement, field);
+      this.columnService.columns$.subscribe(() => this.syncColumnStyles(cellElement, field));
     }
+  }
+
+  syncColumnStyles(el: HTMLElement, columnField: string): void {
+    const column = this.columnService.findByColumnField(columnField);
+    el.style.setProperty('--cell-bg-color', column.backgroundColor);
+    el.style.setProperty('--cell-color', column.fontColor);
+    el.style.setProperty('--cell-font-size', `${ column.fontSize }px`);
   }
 
   toolbarClick(args: ClickEventArgs): void {

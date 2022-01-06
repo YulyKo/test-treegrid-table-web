@@ -42,6 +42,8 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   public alignmentValues: ({ id: string; type: string })[];
   public dataTypeValues: ({ id: string; type: string })[];
   dropdownValuesSubject = new BehaviorSubject([]);
+  requestMode: 'update' | 'create';
+  columnID: string;
 
   public dlgBtnClick: EmitType<object> = () => {
     this.dialogObj.hide();
@@ -167,8 +169,11 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     if (columnData) {
       const column = this.columnService.findByColumnField(columnData.field) as IColumn;
       this.initForm(column);
+      this.requestMode = 'update';
+      this.columnID = column.id;
     } else {
       this.setEmptyForm();
+      this.requestMode = 'create';
     }
     this.dialogObj.show();
     this.dialogObj.refreshPosition();
@@ -190,13 +195,27 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   public onSubmit(): void {
     this.formSubmitAttempt = true;
     if (this.form.valid) {
-      this.columnService.createColumn({
-        ...this.form.value,
-        dropdownValues: this.dropdownValuesSubject.value
-      });
+      this.saveData();
       this.hideDialog();
     } else {
       this.validateAllFormFields(this.form);
+    }
+  }
+
+  saveData(): void {
+    switch (this.requestMode) {
+      case 'create':
+        this.columnService.createColumn({
+          ...this.form.value,
+          dropdownValues: this.dropdownValuesSubject.value
+        });
+        break;
+      case 'update':
+        this.columnService.updateColumn(this.columnID, {
+          ...this.form.value,
+          dropdownValues: this.dropdownValuesSubject.value
+        });
+        break;
     }
   }
 
