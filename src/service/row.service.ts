@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import IRow from '../models/Row.interface';
 import {environment} from '../environments/environment';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {merge, Observable, Subject} from 'rxjs';
 import {IColumn} from '../models/Column.interface';
 import {tap, map} from 'rxjs/operators';
 import {ColumnService} from './column.service';
 import {DataType} from '../models/enums/DataType.enum';
+import {SocketService} from './socket.service';
 
 interface ICreatePayload {
   rowData: IRow;
@@ -20,15 +21,18 @@ interface ICreatePayload {
 export class RowService {
   private readonly API_URL = environment.API_URL;
 
-  public rows: IRow[];
+  private rowsSubject = new Subject<IRow[]>();
+  public rows: IRow[] = [];
+  public rows$: Observable<Array<IRow>> = this.rowsSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private columnService: ColumnService
+    private columnService: ColumnService,
+    private socketService: SocketService
   ) {}
 
-  getAllRows(): Observable<IRow[]> {
-    return this.http.get<IRow[]>(`${ this.API_URL }/rows`).pipe(
+  loadRows(): void {
+    merge(this.getAllRows(), this.socketService.rowUpdate$).pipe(
       map(data => {
         return data.map(row => {
           this.columnService.columns.forEach(column => {
@@ -38,11 +42,15 @@ export class RowService {
           });
           return row;
         });
-      }),
-      tap((data) => {
-        this.rows = data;
       })
-    );
+    ).subscribe((rows) => {
+      this.rows = rows;
+      this.rowsSubject.next(rows);
+    });
+  }
+
+  getAllRows(): Observable<IRow[]> {
+    return this.http.get<IRow[]>(`${ this.API_URL }/rows`);
   }
 
   createRow(rowData: ICreatePayload): void {

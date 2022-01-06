@@ -70,17 +70,17 @@ export class TreeGridComponent implements OnInit {
     private rowService: RowService,
     private windowService: WindowService
   ) {
+    this.rowService.rows$.subscribe((rows) => {
+      this.rows = rows;
+      this.isLoading = false;
+    });
+
     this.columnService.columns$.subscribe((columns) => {
       this.columns = columns;
 
-      if (this.isLoading === false) {
-        return;
+      if (this.isLoading) {
+        this.rowService.loadRows();
       }
-
-      this.rowService.getAllRows().subscribe((rows) => {
-        this.rows = rows;
-        this.isLoading = false;
-      });
     });
     this.columnService.loadColumns();
 
