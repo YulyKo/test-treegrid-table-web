@@ -1,39 +1,17 @@
 import {ContextMenuItemModel} from '@syncfusion/ej2-angular-grids';
 
 export const CONTEXT_MENU_ITEMS: ContextMenuItemModel[] = [
-  {
-    text: 'Add Next Row  ',
-    target: '.e-content',
-    id: 'addNext'
-  },
-  {
-    text: 'Add Child Row',
-    target: '.e-content',
-    id: 'addChild'
-  },
-  {
-    text: 'Edit Row',
-    target: '.e-content',
-    id: 'editRow'
-  },
-  {
-    text: 'Delete Row',
-    target: '.e-content',
-    id: 'delRow'
-  },
+  {text: 'Add Next Row  ', target: '.e-content', id: 'addNext'},
+  {text: 'Add Child Row', target: '.e-content', id: 'addChild'},
+  {text: 'Edit Row', target: '.e-content', id: 'editRow'},
+  {text: 'Delete Row', target: '.e-content', id: 'delRow'},
 
-  { text: 'Multi-Select', target: '.e-content', id: 'rmultiSelect' },
+  {text: 'Multi-Select', target: '.e-content', id: 'rmultiSelect'},
   {text: 'Copy Rows', target: '.e-content', id: 'copyRows'},
 
   {text: 'Paste Rows Next', target: '.e-content', id: 'rowPasteNext'},
   {text: 'Paste Rows as Child', target: '.e-content', id: 'rowPasteChild'},
-  {
-    id: 'cut',
-    text: 'Cut',
-    target: '.e-content',
-    iconCss: 'e-cm-icons e-cut'
-  },
-  // { text: 'Style', target: '.e-headercontent', id: 'style' },
+  {text: 'Cut Rows', target: '.e-content', id: 'rowCut'},
 
   {text: 'Edit Column', target: '.e-headercontent', id: 'editCol'},
   {text: 'Add Column', target: '.e-headercontent', id: 'newCol'},

@@ -7,33 +7,29 @@ import IRow from '../models/Row.interface';
 export class ClipboardService {
   private treegrid: TreeGridComponent;
   private copiedPaths: Array<string[]>;
+  private lastSelectedPath: string[];
 
   constructor(private rowService: RowService) {}
 
   public async init(treegrid: TreeGridComponent): Promise<void> {
     this.treegrid = treegrid;
 
-    const module = await this.listenPropertyInit<object>(treegrid, 'clipboardModule');
-    const clipboardEl = await this.listenPropertyInit<HTMLTextAreaElement>(module, 'clipBoardTextArea');
+    this.treegrid.rowSelected.subscribe((row: { data: IRow }) => {
+      this.lastSelectedPath = this.rowService.getRowPath(row.data);
+    });
 
-    clipboardEl.addEventListener('copy', this.copy.bind(this));
-  }
+    treegrid.beforeCopy.subscribe(this.copy.bind(this));
 
-  private listenPropertyInit<T>(host: object, name: string): Promise<T> {
-    return new Promise<T>(resolve => {
-      let property;
-      Object.defineProperty(host, name, {
-        set: m => {
-          property = m;
-          resolve(property);
-        },
-        get: () => property
-      });
+    window.addEventListener('keydown', (event) => {
+      if (event.ctrlKey && event.key.toLowerCase() === 'v') {
+        this.paste('next', this.lastSelectedPath);
+      }
     });
   }
 
-  copy(): void {
+  private copy(): void {
     this.copiedPaths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
+    this.treegrid.clearSelection();
   }
 
   paste(status: string, rowPath: string[]): void {

@@ -159,7 +159,7 @@ export class TreeGridComponent implements OnInit {
         this.deleteRow(args.rowInfo.rowData);
         break;
       case 'copyRows':
-        this.clipboardService.copy();
+        this.treegrid.copy();
         break;
       case 'rowPasteNext':
         this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
