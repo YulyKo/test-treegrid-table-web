@@ -3,7 +3,8 @@ import {IColumn} from '../models/Column.interface';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {map, tap} from 'rxjs/operators';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, merge, Observable, Subject} from 'rxjs';
+import {SocketService} from './socket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,9 +12,13 @@ import {Observable} from 'rxjs';
 export class ColumnService {
   private readonly API_URL = `${ environment.API_URL }/columns`;
 
-  public columns: IColumn[];
+  private columnsSubject = new Subject<IColumn[]>();
+  public columns: IColumn[] = [];
+  public columns$: Observable<Array<IColumn>> = this.columnsSubject.asObservable();
+
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private socketService: SocketService
   ) {}
 
   findByColumnField(field: string): IColumn {
@@ -21,15 +26,17 @@ export class ColumnService {
   }
 
   getAllColumns(): Observable<IColumn[]> {
-    return this.http.get<IColumn[]>(this.API_URL).pipe(
-      tap((data) => {
-        console.log(data);
-        this.columns = data as IColumn[];
-      })
-    );
+    return this.http.get<IColumn[]>(this.API_URL);
   }
 
   createColumn(columnData: Omit<IColumn, 'id'>): void {
     this.http.post<IColumn>(this.API_URL, columnData).subscribe();
+  }
+
+  loadColumns(): void {
+    merge(this.getAllColumns(), this.socketService.columnUpdate$).subscribe((columns) => {
+      this.columns = columns;
+      this.columnsSubject.next(columns);
+    });
   }
 }

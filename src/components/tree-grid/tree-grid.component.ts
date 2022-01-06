@@ -23,7 +23,7 @@ import { RowFormComponent } from '../forms/row-form/row-form.component';
 import { RowService } from '../../service/row.service';
 import {WindowService} from '../../service/window.service';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {first, map, tap} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 
 @Component({
@@ -70,15 +70,20 @@ export class TreeGridComponent implements OnInit {
     private rowService: RowService,
     private windowService: WindowService
   ) {
-    this.columnService.getAllColumns().subscribe((columns) => {
-      console.log(columns);
+    this.columnService.columns$.subscribe((columns) => {
+      this.columns = columns;
+
+      if (this.isLoading === false) {
+        return;
+      }
+
       this.rowService.getAllRows().subscribe((rows) => {
-        console.log(rows);
-        this.columns = columns;
         this.rows = rows;
         this.isLoading = false;
       });
     });
+    this.columnService.loadColumns();
+
     this.windowHeight$ = windowService.height$.pipe(
       map(height => height - this.windowService.getScrollbarWidth() - 30)
     );
