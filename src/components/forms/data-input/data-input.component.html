@@ -15,10 +15,10 @@
   <div *ngSwitchCase="dataType.DROPDOWN">
     <ejs-radiobutton
       style="display: block; margin-top: 10px"
-      *ngFor="let item of dropdownDataSource | async"
+      *ngFor="let item of dropdownDataSource"
       [label]="item.type"
       name="defaultDropdownValue"
-      [value]="item.id"
+      [value]="item.id.toString()"
       [formControl]="valueControl"
     ></ejs-radiobutton>
   </div>
