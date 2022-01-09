@@ -1,10 +1,10 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {Component, OnInit, QueryList, RendererType2, ViewChild, ViewChildren} from '@angular/core';
 import { ContextMenuItemModel, QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
 import { FormControl } from '@angular/forms';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import {
-  Column,
+  Column, ColumnsDirective,
   ContextMenuService,
   EditService,
   EditSettingsModel, InfiniteScrollService,
@@ -14,7 +14,8 @@ import {
   ToolbarService,
   TreeGridComponent as TreeGridComp,
 } from '@syncfusion/ej2-angular-treegrid';
-import {BeforeOpenCloseMenuEventArgs, ClickEventArgs} from '@syncfusion/ej2-angular-navigations';
+import { closest, createElement } from '@syncfusion/ej2-base';
+import {BeforeOpenCloseMenuEventArgs, ClickEventArgs, MenuEventArgs} from '@syncfusion/ej2-angular-navigations';
 import { ColumnFormComponent } from '../forms/column-form/column-form.component';
 import {IColumn} from '../../models/Column.interface';
 import { DataType } from '../../models/enums/DataType.enum';
@@ -27,6 +28,13 @@ import {first, map, tap} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+
+import {
+  DataManager,
+  WebApiAdaptor,
+  Query,
+  ReturnOption
+} from '@syncfusion/ej2-data';
 
 @Component({
   selector: 'app-tree-grid',
@@ -55,6 +63,15 @@ export class TreeGridComponent implements OnInit {
   @ViewChild('rowForm')
   rowForm: RowFormComponent;
 
+  public dataManager: DataManager = new DataManager({
+    url: 'https://vom-app.herokuapp.com/tasks?limit=14000',
+    updateUrl: 'https://vom-app.herokuapp.com/tasks',
+    insertUrl: 'https://vom-app.herokuapp.com/tasks',
+    removeUrl: 'https://vom-app.herokuapp.com/tasks',
+    crossDomain: true,
+    adaptor: new WebApiAdaptor()
+  });
+
   public readonly dataType = DataType;
   public readonly contextMenuItems = CONTEXT_MENU_ITEMS;
 
@@ -66,8 +83,9 @@ export class TreeGridComponent implements OnInit {
 
   public isLoading = true;
 
-  columns: IColumn[] = [];
+  columns: any[] = [];
   rows: IRow[] = [];
+  private copiedRow: Element;
 
   constructor(
     private appService: AppService,
@@ -90,7 +108,6 @@ export class TreeGridComponent implements OnInit {
 
     this.columnService.columns$.subscribe((columns) => {
       this.columns = columns;
-
       if (this.isLoading) {
         this.rowService.loadRows();
       }
@@ -113,14 +130,19 @@ export class TreeGridComponent implements OnInit {
       allowDeleting: true,
       mode: 'Dialog',
       // newRowPosition: 'Child',
-      showDeleteConfirmDialog: true,
-      // newRowPosition: 'Child'
+      showDeleteConfirmDialog: true
     };
 
     this.selectionOptions = {
-      persistSelection: false,
-      enableToggle: true
+      type: 'Multiple',
+      mode: 'Row'
     };
+
+    this.columns.forEach(column => {
+      const columnIndex = this.treegrid.getColumnIndexByField(column.field);
+      const columnElement = this.treegrid.getColumnHeaderByIndex(columnIndex) as HTMLElement;
+      this.syncColumnStyles(columnElement, column);
+    });
 
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
@@ -129,11 +151,20 @@ export class TreeGridComponent implements OnInit {
     const isRow = !!args.rowInfo.row;
     const isSystemField = this.isSystemColumn(args.column.field);
     const display = isRow || isSystemField ? 'none' : 'block';
+    if (this.selectionOptions.type === 'Single') {
+      args.element.querySelector('#cancelMultiSelect').style.display = 'none';
+      args.element.querySelector('#multiSelect').style.display = 'block';
+    } else if (this.selectionOptions.type === 'Multiple') {
+      args.element.querySelector('#cancelMultiSelect').style.display = 'block';
+      args.element.querySelector('#multiSelect').style.display = 'none';
+    }
+
     args.element.querySelector('#editCol').style.display = display;
     args.element.querySelector('#deleteCol').style.display = display;
   }
 
   contextMenuClick(args: any): void {
+    const rowIndex = args.rowInfo.rowIndex;
     switch (args.item.id) {
       // column
       case 'newCol':
@@ -159,14 +190,26 @@ export class TreeGridComponent implements OnInit {
         this.deleteRow(args.rowInfo.rowData);
         break;
       case 'copyRows':
+        this.copiedRow = this.treegrid.getRowByIndex(rowIndex);
+
+        this.treegrid.copyHierarchyMode = 'None';
         this.treegrid.copy();
+        this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
         break;
       case 'rowPasteNext':
         this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
         break;
       case 'rowPasteChild':
         this.clipboardService.paste('child', this.rowService.getRowPath(args.rowInfo.rowData));
+        this.copiedRow.setAttribute('style', 'background: #FFF;');
         break;
+      case 'multiSelect':
+        this.treegrid.selectionSettings.type = 'Multiple';
+        break;
+      case 'cancelMultiSelect':
+        this.treegrid.selectionSettings.type = 'Single';
+        break;
+      // case ''
     }
     this.treegrid.clearSelection();
   }
@@ -277,7 +320,6 @@ export class TreeGridComponent implements OnInit {
       rowIndex = this.treegrid.selectedRowIndex;
       cellIndex = this.treegrid.getSelectedRowCellIndexes;
 
-      this.treegrid.copy();
     } else if (args.item.id === 'customPaste') {
       // @ts-ignore: Unreachable code error
       const copiedData = this.treegrid.clipboardModule.copyContent;
@@ -285,5 +327,4 @@ export class TreeGridComponent implements OnInit {
       this.treegrid.paste(copiedData, rowIndex, cellIndex);
     }
   }
-
 }
