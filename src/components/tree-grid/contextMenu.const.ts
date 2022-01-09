@@ -16,7 +16,7 @@ export const CONTEXT_MENU_ITEMS: ContextMenuItemModel[] = [
   {text: 'Add Column', target: '.e-headercontent', id: 'newCol'},
 
   {text: 'Delete Column', target: '.e-headercontent', id: 'deleteCol'},
-  {text: 'Show', target: '.e-headercontent', id: 'columnChooser'},
+  {text: 'Column Chooser', target: '.e-headercontent', id: 'columnChooser'},
   {text: 'Freeze', target: '.e-headercontent', id: 'freeze'},
 
   {text: 'Filter', target: '.e-headercontent', id: 'filter'},

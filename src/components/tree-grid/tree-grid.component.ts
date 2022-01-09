@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import {
-  Column, ColumnsDirective,
+  Column, ColumnChooserService, ColumnsDirective,
   ContextMenuService,
   EditService,
   EditSettingsModel, InfiniteScrollService,
@@ -31,9 +31,7 @@ import {ClipboardService} from '../../service/clipboard.service';
 
 import {
   DataManager,
-  WebApiAdaptor,
-  Query,
-  ReturnOption
+  WebApiAdaptor
 } from '@syncfusion/ej2-data';
 
 @Component({
@@ -46,7 +44,8 @@ import {
     EditService,
     PageService,
     ContextMenuService,
-    InfiniteScrollService
+    InfiniteScrollService,
+    ColumnChooserService
   ]
 })
 export class TreeGridComponent implements OnInit {
@@ -147,10 +146,23 @@ export class TreeGridComponent implements OnInit {
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
 
+  beforeCopy(args: any): void {
+    console.log(args.data.split('\t')[this.columns.length - 1].split('\n'));
+    const rowIndex = args.data.split('\t')[this.columns.length - 1].split('\n').at(-1);
+    console.log(rowIndex);
+    this.copiedRow = this.treegrid.getRowByIndex(rowIndex + 1);
+
+    this.treegrid.copyHierarchyMode = 'None';
+    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+  }
+
   public contextMenuBeforeOpen(args: any): void {
     const isRow = !!args.rowInfo.row;
     const isSystemField = this.isSystemColumn(args.column.field);
     const display = isRow || isSystemField ? 'none' : 'block';
+
     if (this.selectionOptions.type === 'Single') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'none';
       args.element.querySelector('#multiSelect').style.display = 'block';
@@ -191,7 +203,7 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'copyRows':
         this.copiedRow = this.treegrid.getRowByIndex(rowIndex);
-
+        console.log(this.copiedRow);
         this.treegrid.copyHierarchyMode = 'None';
         this.treegrid.copy();
         this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
@@ -209,7 +221,9 @@ export class TreeGridComponent implements OnInit {
       case 'cancelMultiSelect':
         this.treegrid.selectionSettings.type = 'Single';
         break;
-      // case ''
+      case 'columnChooser':
+        this.treegrid.columnChooserModule.openColumnChooser();
+        break;
     }
     this.treegrid.clearSelection();
   }
