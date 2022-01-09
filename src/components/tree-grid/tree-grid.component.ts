@@ -85,6 +85,7 @@ export class TreeGridComponent implements OnInit {
   columns: any[] = [];
   rows: IRow[] = [];
   private copiedRow: Element;
+  listHeaders = [];
 
   constructor(
     private appService: AppService,
@@ -121,6 +122,14 @@ export class TreeGridComponent implements OnInit {
     );
   }
 
+//   this.columns.forEach((column: IColumn) => {
+//   const columnIndex = this.treegrid.getColumnIndexByField(column.field);
+//   const columnElement = this.treegrid.getColumnHeaderByIndex(columnIndex) as HTMLElement;
+//   console.log('column');
+//   console.log(columnElement);
+//   this.syncColumnStyles(columnElement, column);
+// });
+
   ngOnInit(): void {
     // for edit and create
     this.editSettings = {
@@ -136,12 +145,6 @@ export class TreeGridComponent implements OnInit {
       type: 'Multiple',
       mode: 'Row'
     };
-
-    this.columns.forEach(column => {
-      const columnIndex = this.treegrid.getColumnIndexByField(column.field);
-      const columnElement = this.treegrid.getColumnHeaderByIndex(columnIndex) as HTMLElement;
-      this.syncColumnStyles(columnElement, column);
-    });
 
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
@@ -278,9 +281,12 @@ export class TreeGridComponent implements OnInit {
     if (this.isSystemColumn(field)) {
       return;
     }
-
     const cellElement = args.cell as HTMLElement;
+
+    const columnIndex = this.treegrid.getColumnIndexByField(field);
+    const columnElement = this.treegrid.getColumnHeaderByIndex(columnIndex) as HTMLElement;
     cellElement.classList.add('column-cell');
+    columnElement.classList.add('header-cell');
 
     const initialColumn = this.columnService.findByColumnField(field);
 
@@ -289,12 +295,14 @@ export class TreeGridComponent implements OnInit {
     }
 
     this.syncColumnStyles(cellElement, initialColumn);
+    this.syncColumnStyles(columnElement, initialColumn);
 
     const subscription = this.columnService.columns$.subscribe(() => {
       const column = this.columnService.findByColumnField(field);
 
       if (column) {
         this.syncColumnStyles(cellElement, column);
+        this.syncColumnStyles(columnElement, column);
       } else {
         subscription.unsubscribe();
       }
@@ -316,7 +324,7 @@ export class TreeGridComponent implements OnInit {
     let cellIndex: any;
 
     if (args.item.text === 'Add Parent' || args.item.text === 'Add Child') {
-      // checking if any record is choosen for adding new record below/child to it
+      // checking if any record is chosen for adding new record below/child to it
       if (this.treegrid.getSelectedRecords().length) {
         // if the 'Add Parent' or 'Add Child' option is choose,
         // setting newRowPosition accordingly and calling 'addRecord' method

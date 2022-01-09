@@ -4,7 +4,7 @@ import {DataType} from './enums/DataType.enum';
 
 export interface IColumn {
   id: string;
-  field: string | number;
+  field: string;
   name: string;
   dataType: DataType;
   defaultValue?: string | number | boolean | Array<string> | null;
