@@ -72,7 +72,6 @@ export class RowService {
 
     while (row) {
       path.unshift(row.id);
-      path.unshift(row.index);
       row = row.parentItem as any as IRow;
     }
 

@@ -79,10 +79,8 @@ export class TreeGridComponent implements OnInit {
   filterOptions: FilterSettingsModel;
   public allowMultiSorting = true;
   public sorting = false;
-  private frozenColumns = 0;
 
   constructor(
-    private appService: AppService,
     private columnService: ColumnService,
     private rowService: RowService,
     private windowService: WindowService,
@@ -163,9 +161,7 @@ export class TreeGridComponent implements OnInit {
   }
 
   beforeCopy(args: any): void {
-    console.log(args.data.split('\t')[this.columns.length - 1].split('\n'));
     const rowIndex = args.data.split('\t')[this.columns.length - 1].split('\n').at(-1);
-    console.log(rowIndex);
     this.copiedRow = this.treegrid.getRowByIndex(rowIndex + 1);
 
     this.treegrid.copyHierarchyMode = 'None';
@@ -195,10 +191,10 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#multiSort').style.display = 'block';
     }
 
-    if (this.selectionOptions.type === 'Single') {
+    if (this.selectionOptions.type && this.selectionOptions.type === 'Single') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'none';
       args.element.querySelector('#multiSelect').style.display = 'block';
-    } else if (this.selectionOptions.type === 'Multiple') {
+    } else if ( this.selectionOptions.type && this.selectionOptions.type === 'Multiple') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'block';
       args.element.querySelector('#multiSelect').style.display = 'none';
     }
@@ -242,7 +238,6 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'copyRows':
         this.copiedRow = this.treegrid.getRowByIndex(rowIndex);
-        console.log(this.copiedRow);
         this.treegrid.copyHierarchyMode = 'None';
         this.treegrid.copy();
         this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
@@ -282,7 +277,6 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'multiSort':
         // this.allowMultiSorting = !this.treegrid.allowMultiSorting;
-        console.log(args.column.field);
         // this.sorting = !this.sorting;
         // this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
         break;

@@ -119,7 +119,6 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   }
 
   initForm(formData: IColumn): void {
-    console.log('formData', formData);
     this.form = this.formBuilder.group({
       name: [ formData.name, Validators.required],
       dataType: [formData.dataType, Validators.required],
