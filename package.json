@@ -4,10 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider",
+    "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "prepare": "husky install"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +20,16 @@
     "@angular/platform-browser": "~10.0.0",
     "@angular/platform-browser-dynamic": "~10.0.0",
     "@angular/router": "~10.0.0",
+    "@syncfusion/ej2": "^19.4.38",
+    "@syncfusion/ej2-angular-buttons": "^19.4.38",
+    "@syncfusion/ej2-angular-calendars": "^19.4.38",
+    "@syncfusion/ej2-angular-dropdowns": "^19.4.38",
+    "@syncfusion/ej2-angular-grids": "^19.4.38",
+    "@syncfusion/ej2-angular-inputs": "^19.4.38",
+    "@syncfusion/ej2-angular-navigations": "^19.4.38",
+    "@syncfusion/ej2-angular-popups": "^19.4.38",
+    "@syncfusion/ej2-angular-treegrid": "^19.4.38",
+    "@syncfusion/ej2-data": "^19.4.38",
     "normalize.css": "^8.0.1",
     "reset-css": "^5.0.1",
     "rxjs": "~6.5.5",
@@ -35,6 +46,7 @@
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "codelyzer": "^6.0.0-next.1",
+    "husky": "^7.0.4",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~5.0.0",

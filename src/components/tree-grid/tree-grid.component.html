@@ -1,0 +1,48 @@
+<div class="control-section">
+    <section #container>
+        <ejs-treegrid
+            *ngIf="!isLoading"
+            #treegrid
+            [dataSource]="rows"
+            childMapping="subrows"
+            copy="true"
+            [height]="windowHeight$ | async"
+            [width]="windowWidth$ | async"
+            treeColumnIndex="1"
+            [frozenColumns]="frozenColumns"
+            allowSelection="true"
+            allowReordering="true"
+            [allowSorting]="sorting"
+            [allowMultiSorting]="allowMultiSorting"
+            enableInfiniteScrolling="true"
+            [showColumnChooser]="true"
+            [pageSettings]="pageSettings"
+            [editSettings]="editSettings"
+            [selectionSettings]="selectionOptions"
+            (queryCellInfo)="customizeSelf($event)"
+            (beforeCopy)="beforeCopy($event)"
+            [contextMenuItems]="contextMenuItems"
+            (contextMenuClick)="contextMenuClick($event)"
+            (contextMenuOpen)="contextMenuBeforeOpen($event)"
+            [filterSettings]='filterOptions'
+            [allowFiltering]='allowFiltering'
+        >
+            <e-columns>
+                <e-column
+                  *ngFor="let column of columns"
+                  [minWidth]='column.minWidth'
+                  class="column.id"
+                  width=200
+                  [columnName]="column.field"
+                  [field]='column.field'
+                  [headerText]='column.name'
+                  [textAlign]='column.alignment'
+                  [format]="column.dataType === dataType.DATE && 'yMd'"
+                >
+                </e-column>
+            </e-columns>
+        </ejs-treegrid>
+        <app-column-form #columnForm></app-column-form>
+        <app-row-form #rowForm></app-row-form>
+    </section>
+</div>

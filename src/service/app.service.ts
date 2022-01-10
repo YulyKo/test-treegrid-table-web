@@ -6,14 +6,13 @@ import { environment } from '../environments/environment';
   providedIn: 'root'
 })
 export class AppService {
-  API = `${ environment.API_URL }/api/tasks`;
+  API = `${ environment.API_URL }/api/row`;
 
-  tasks: any;
+  rows: any;
 
   constructor(private http: HttpClient) { }
 
   fetchAll(): any {
-    console.log(this.API);
     return this.http.get(this.API);
   }
 }
