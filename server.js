@@ -8,10 +8,10 @@ function requireHTTPS(req, res, next) {
 const express = require('express');
 const app = express();
 app.use(requireHTTPS);
-app.use(express.static('./dist/<name-on-package.json>'));
+app.use(express.static('./dist/ej2-syncfusion-web'));
 
 app.get('/*', function(req, res) {
-  res.sendFile('index.html', {root: 'dist/<name-on-package.json>/'}
+  res.sendFile('index.html', {root: 'dist/ej2-syncfusion-web'}
 );
 });
-app.listen(process.env.PORT || 8080);
+app.listen(process.env.PORT || 8089);
