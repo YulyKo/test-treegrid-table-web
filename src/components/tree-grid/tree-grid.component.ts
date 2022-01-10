@@ -62,6 +62,8 @@ export class TreeGridComponent implements OnInit {
   public pageSettings: PageSettingsModel;
   public selectionOptions: SelectionSettingsModel;
   public sortSettings: object;
+  public wrapSettings = { wrapMode: 'Content' };
+
   public windowHeight$: Observable<number>;
   public windowWidth$: Observable<number>;
 
@@ -79,6 +81,7 @@ export class TreeGridComponent implements OnInit {
   filterOptions: FilterSettingsModel;
   public allowMultiSorting = true;
   public sorting = false;
+  public frozenColumns = 0;
 
   constructor(
     private columnService: ColumnService,
@@ -86,6 +89,10 @@ export class TreeGridComponent implements OnInit {
     private windowService: WindowService,
     private clipboardService: ClipboardService
   ) {
+    this.selectionOptions = {
+      type: 'Multiple',
+      mode: 'Row'
+    };
     // this.filterSettings = {};
     this.rowService.rows$.subscribe((rows) => {
       this.rows = rows;
@@ -138,10 +145,6 @@ export class TreeGridComponent implements OnInit {
       showDeleteConfirmDialog: true
     };
     document.getElementsByClassName('e-filterbar').item(0).setAttribute('style', 'pointer-events: none;');
-    this.selectionOptions = {
-      type: 'Multiple',
-      mode: 'Row'
-    };
 
     this.pageSettings = { pageCount: 5, pageSize: 90 };
     const options = [];
@@ -190,7 +193,7 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#unmultiSort').style.display = 'none';
       args.element.querySelector('#multiSort').style.display = 'block';
     }
-
+    console.log(this.selectionOptions.type);
     if (this.selectionOptions.type && this.selectionOptions.type === 'Single') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'none';
       args.element.querySelector('#multiSelect').style.display = 'block';
@@ -272,7 +275,6 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'freeze':
         const index = args.column.index as number;
-        this.frozenColumns = 0;
         this.frozenColumns = this.treegrid.frozenColumns === index ? 0 : index;
         break;
       case 'multiSort':
