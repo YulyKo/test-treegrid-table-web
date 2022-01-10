@@ -40,9 +40,11 @@ export class RowFormComponent {
 
     for (const column of this.columns) {
       const field = column.field.toString();
-      const value = row[field] ?? column.defaultValue;
-      const control = this.formBuilder.control(this.formatValue(column, value));
-      this.form.addControl(field, control);
+      if (field !== 'index') {
+        const value = row[field] ?? column.defaultValue;
+        const control = this.formBuilder.control(this.formatValue(column, value));
+        this.form.addControl(field, control);
+      }
     }
   }
 

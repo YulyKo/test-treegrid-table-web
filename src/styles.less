@@ -71,11 +71,26 @@ body,
 #reactDialog {
   top: 30%;
 }
+.e-mastertext {
+  font-size: 15px;
+  font-family: Roboto;
+  opacity: 0.87;
+  padding: 1em;
+}
 
+/* custom code start*/
+.e-toolbar-item.e-ghidden .e-btn {
+  background: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #212121;
+}
 .column-cell.column-cell {
+  width: fit-content;
+  width: -moz-fit-content;
   font-size: var(--cell-font-size);
   color: var(--cell-color) !important;
   background-color: var(--cell-bg-color);
+  white-space: var(--cell-text-wrap) !important;
 }
 
 .column-cell:not(.e-selectionbackground) {

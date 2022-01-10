@@ -119,6 +119,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   }
 
   initForm(formData: IColumn): void {
+    console.log('formData', formData);
     this.form = this.formBuilder.group({
       name: [ formData.name, Validators.required],
       dataType: [formData.dataType, Validators.required],
@@ -131,8 +132,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       textWrap: [formData.textWrap],
       dropdownValues: new FormArray( [])
     });
-    this.clearDropDownValues();
-
+    // this.clearDropDownValues();
     for (const dropdownValue of formData.dropdownValues) {
       this.addDropdownValue(dropdownValue);
     }
@@ -156,8 +156,8 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       defaultValue: null,
       minWidth: null,
       fontSize: null,
-      fontColor: '',
-      backgroundColor: '',
+      fontColor: '#FFFFFF',
+      backgroundColor: '#000000',
       alignment: '',
       textWrap: false,
       dropdownValues: []

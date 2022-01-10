@@ -29,6 +29,7 @@
     "@syncfusion/ej2-angular-navigations": "^19.4.38",
     "@syncfusion/ej2-angular-popups": "^19.4.38",
     "@syncfusion/ej2-angular-treegrid": "^19.4.38",
+    "@syncfusion/ej2-data": "^19.4.38",
     "normalize.css": "^8.0.1",
     "reset-css": "^5.0.1",
     "rxjs": "~6.5.5",

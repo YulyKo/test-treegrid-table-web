@@ -8,11 +8,14 @@
             copy="true"
             [height]="windowHeight$ | async"
             [width]="windowWidth$ | async"
+            treeColumnIndex="1"
+            [frozenColumns]="frozenColumns"
             allowSelection="true"
             allowReordering="true"
+            [allowSorting]="sorting"
+            [allowMultiSorting]="allowMultiSorting"
             enableInfiniteScrolling="true"
             [showColumnChooser]="true"
-            [treeColumnIndex]="1"
             [pageSettings]="pageSettings"
             [editSettings]="editSettings"
             [selectionSettings]="selectionOptions"
@@ -21,6 +24,8 @@
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
+            [filterSettings]='filterOptions'
+            [allowFiltering]='allowFiltering'
         >
             <e-columns>
                 <e-column
@@ -28,6 +33,7 @@
                   [minWidth]='column.minWidth'
                   class="column.id"
                   width=200
+                  [columnName]="column.field"
                   [field]='column.field'
                   [headerText]='column.name'
                   [textAlign]='column.alignment'
