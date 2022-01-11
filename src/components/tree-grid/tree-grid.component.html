@@ -8,26 +8,25 @@
             copy="true"
             [height]="windowHeight$ | async"
             [width]="windowWidth$ | async"
-            treeColumnIndex="1"
+            treeColumnIndex="0"
             [frozenColumns]="frozenColumns"
             allowTextWrap='true'
             allowSelection="true"
             allowReordering="true"
-            [allowSorting]="sorting"
+            allowSorting="true"
+            [allowFiltering]='allowFiltering'
             [allowMultiSorting]="allowMultiSorting"
             enableInfiniteScrolling="true"
             [showColumnChooser]="true"
             [pageSettings]="pageSettings"
             [editSettings]="editSettings"
             [selectionSettings]="selectionOptions"
+            [filterSettings]='filterOptions'
             (queryCellInfo)="customizeSelf($event)"
-            [textWrapSettings]='wrapSettings'
             (beforeCopy)="beforeCopy($event)"
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
-            [filterSettings]='filterOptions'
-            [allowFiltering]='allowFiltering'
         >
             <e-columns>
                 <e-column
@@ -40,8 +39,8 @@
                   [headerText]='column.name'
                   [textAlign]='column.alignment'
                   [format]="column.dataType === dataType.DATE && 'yMd'"
-                >
-<!--                  [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }"-->
+                  >
+                  <!-- [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }" -->
                 </e-column>
             </e-columns>
         </ejs-treegrid>

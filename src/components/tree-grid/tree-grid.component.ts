@@ -1,5 +1,5 @@
 import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {QueryCellInfoEventArgs, TextWrapSettings} from '@syncfusion/ej2-angular-grids';
+import {QueryCellInfoEventArgs} from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import {
@@ -62,7 +62,6 @@ export class TreeGridComponent implements OnInit {
   public pageSettings: PageSettingsModel;
   public selectionOptions: SelectionSettingsModel;
   public sortSettings: object;
-  public wrapSettings = { wrapMode: 'Content' };
 
   public windowHeight$: Observable<number>;
   public windowWidth$: Observable<number>;
@@ -77,10 +76,9 @@ export class TreeGridComponent implements OnInit {
   private copiedRow: Element;
   listHeaders = [];
 
-  allowFiltering = true;
+  public allowFiltering = true;
   filterOptions: FilterSettingsModel;
   public allowMultiSorting = true;
-  public sorting = false;
   public frozenColumns = 0;
 
   constructor(
@@ -142,10 +140,8 @@ export class TreeGridComponent implements OnInit {
       allowAdding: false,
       allowDeleting: true,
       mode: 'Dialog',
-      // newRowPosition: 'Child',
       showDeleteConfirmDialog: true
     };
-    document.getElementsByClassName('e-filterbar').item(0).setAttribute('style', 'pointer-events: none;');
 
     this.pageSettings = { pageCount: 5, pageSize: 90 };
     const options = [];
@@ -219,6 +215,7 @@ export class TreeGridComponent implements OnInit {
     this.isColumnFormOpen = false;
     this.isRowFormOpen = false;
     const rowIndex = args.rowInfo.rowIndex;
+    const filterElement = args.element as HTMLElement;
     switch (args.item.id) {
       // column
       case 'newCol':
@@ -273,14 +270,12 @@ export class TreeGridComponent implements OnInit {
         this.treegrid.columnChooserModule.openColumnChooser();
         break;
       case 'unfilter':
-        // this.allowFiltering = false;
-        args.element.querySelector('.e-filterbar').setAttribute('style', 'pointer-events: none;');
-        this.treegrid.allowFiltering = false;
+        this.allowFiltering = false;
         break;
       case 'filter':
-        // this.allowFiltering = true;
-        args.element.querySelector('.e-filterbar').setAttribute('style', 'pointer-events: pointed;');
-        this.treegrid.allowFiltering = true;
+        this.allowFiltering = true;
+        // const filterElement = args.element as HTMLElement;
+        filterElement.style.setProperty('--filterbar-pointer-events', 'pointed');
         break;
       case 'freeze':
         const index = args.column.index as number;
@@ -290,8 +285,6 @@ export class TreeGridComponent implements OnInit {
         this.frozenColumns = 0;
         break;
       case 'multiSort':
-        this.allowMultiSorting = !this.treegrid.allowMultiSorting;
-        this.sorting = !this.sorting;
         this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
         break;
       case 'unmultiSort':
