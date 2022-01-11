@@ -1,5 +1,5 @@
 import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import { QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
+import {QueryCellInfoEventArgs, TextWrapSettings} from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import {
@@ -115,6 +115,7 @@ export class TreeGridComponent implements OnInit {
           direction: 'Ascending'
         });
       });
+      // this.customAttributes.
       this.sortSettings =  { columns: sortedColumnFields };
       if (this.isLoading) {
         this.rowService.loadRows();
@@ -164,8 +165,8 @@ export class TreeGridComponent implements OnInit {
   }
 
   beforeCopy(args: any): void {
-    const rowIndex = args.data.split('\t')[this.columns.length - 1].split('\n').at(-1);
-    this.copiedRow = this.treegrid.getRowByIndex(rowIndex + 1);
+    const rowIndex = args.data.split('\t')[0].split('\n').at(-1);
+    this.copiedRow = this.treegrid.getRowByIndex(rowIndex) as HTMLElement;
 
     this.treegrid.copyHierarchyMode = 'None';
     this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
@@ -193,7 +194,15 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#unmultiSort').style.display = 'none';
       args.element.querySelector('#multiSort').style.display = 'block';
     }
-    console.log(this.selectionOptions.type);
+    const selectedColumnIndex = args.column.index;
+    if (this.frozenColumns !== selectedColumnIndex) {
+      args.element.querySelector('#freeze').style.display = 'block';
+      args.element.querySelector('#unfreeze').style.display = 'none';
+    } else if (this.frozenColumns === selectedColumnIndex) {
+      args.element.querySelector('#freeze').style.display = 'none';
+      args.element.querySelector('#unfreeze').style.display = 'block';
+    }
+
     if (this.selectionOptions.type && this.selectionOptions.type === 'Single') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'none';
       args.element.querySelector('#multiSelect').style.display = 'block';
@@ -275,12 +284,15 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'freeze':
         const index = args.column.index as number;
-        this.frozenColumns = this.treegrid.frozenColumns === index ? 0 : index;
+        this.frozenColumns = index;
+        break;
+      case 'unfreeze':
+        this.frozenColumns = 0;
         break;
       case 'multiSort':
-        // this.allowMultiSorting = !this.treegrid.allowMultiSorting;
-        // this.sorting = !this.sorting;
-        // this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
+        this.allowMultiSorting = !this.treegrid.allowMultiSorting;
+        this.sorting = !this.sorting;
+        this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
         break;
       case 'unmultiSort':
         this.treegrid.removeSortColumn(args.column.field);
@@ -348,7 +360,6 @@ export class TreeGridComponent implements OnInit {
     columnElement.classList.add('header-cell');
 
     const initialColumn = this.columnService.findByColumnField(field);
-
     if (!initialColumn) {
       return;
     }
@@ -376,8 +387,9 @@ export class TreeGridComponent implements OnInit {
     el.style.setProperty('--cell-bg-color', column.backgroundColor);
     el.style.setProperty('--cell-color', column.fontColor);
     el.style.setProperty('--cell-font-size', `${ column.fontSize }px`);
+
+    // not work
     if (column.textWrap) {
-      // el.style.setProperty('--cell-text-wrap', 'break-word');
       el.style.setProperty('--cell-text-white-space', 'nowrap');
     } else {
       el.style.setProperty('--cell-text-white-space', 'normal');

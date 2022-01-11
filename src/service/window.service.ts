@@ -35,7 +35,8 @@ export class WindowService {
     // Creating invisible container
     const outer = document.createElement('div');
     outer.style.visibility = 'hidden';
-    outer.style.overflow = 'scroll'; // forcing scrollbar to appear
+    outer.style.overflowX = 'scroll'; // forcing scrollbar to appear
+    outer.style.overflowY = 'scroll'; // forcing scrollbar to appear
     document.body.appendChild(outer);
 
     // Creating inner element and placing it in the container

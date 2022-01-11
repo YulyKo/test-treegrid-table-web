@@ -40,8 +40,8 @@
                   [headerText]='column.name'
                   [textAlign]='column.alignment'
                   [format]="column.dataType === dataType.DATE && 'yMd'"
-                  [customAttributes]="{class: 'e-removewrap'}"
                 >
+<!--                  [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }"-->
                 </e-column>
             </e-columns>
         </ejs-treegrid>
