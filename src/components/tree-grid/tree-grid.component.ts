@@ -190,7 +190,8 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#unmultiSort').style.display = 'none';
       args.element.querySelector('#multiSort').style.display = 'block';
     }
-    const selectedColumnIndex = args.column.index;
+
+    const selectedColumnIndex = args.column.index + 1;
     if (this.frozenColumns !== selectedColumnIndex) {
       args.element.querySelector('#freeze').style.display = 'block';
       args.element.querySelector('#unfreeze').style.display = 'none';
@@ -278,7 +279,7 @@ export class TreeGridComponent implements OnInit {
         filterElement.style.setProperty('--filterbar-pointer-events', 'pointed');
         break;
       case 'freeze':
-        const index = args.column.index as number;
+        const index = args.column.index + 1;
         this.frozenColumns = index;
         break;
       case 'unfreeze':
