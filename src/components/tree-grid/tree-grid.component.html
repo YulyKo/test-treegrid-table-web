@@ -5,17 +5,16 @@
             #treegrid
             [dataSource]="rows"
             childMapping="subrows"
+            [treeColumnIndex]="1"
             copy="true"
             [height]="windowHeight$ | async"
             [width]="windowWidth$ | async"
-            treeColumnIndex="1"
             [frozenColumns]="frozenColumns"
             allowTextWrap='true'
             allowSelection="true"
             allowReordering="true"
             allowSorting="true"
             [allowFiltering]='allowFiltering'
-            [allowMultiSorting]="allowMultiSorting"
             enableInfiniteScrolling="true"
             [showColumnChooser]="true"
             [pageSettings]="pageSettings"
@@ -28,19 +27,21 @@
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
         >
+<!--            [allowMultiSorting]="allowMultiSorting"-->
             <e-columns>
                 <e-column
                   *ngFor="let column of columns"
                   [minWidth]='column.minWidth'
                   class="column.id"
                   width=200
-                  [columnName]="column.field"
                   [field]='column.field'
                   [headerText]='column.name'
                   [textAlign]='column.alignment'
-                  [format]="column.dataType === dataType.DATE && 'yMd'"
+                  [format]="column.dataType === dataType.DATE && 'dd/MM/yyyy'"
+                  [isPrimaryKey]="column.filed === 'index'"
                   >
-                  <!-- [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }" -->
+<!--                  [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }"-->
+<!--                  882px 922-->
                 </e-column>
             </e-columns>
         </ejs-treegrid>

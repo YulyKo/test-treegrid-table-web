@@ -25,6 +25,7 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+import {logging} from 'protractor';
 
 @Component({
   selector: 'app-tree-grid',
@@ -73,7 +74,7 @@ export class TreeGridComponent implements OnInit {
   columns: any[] = [];
   columnsList: any[] = [];
   rows: IRow[] = [];
-  private copiedRow: Element;
+  private copiedRow: any; // Element | HTMLElement;
   listHeaders = [];
 
   public allowFiltering = true;
@@ -91,7 +92,7 @@ export class TreeGridComponent implements OnInit {
       type: 'Multiple',
       mode: 'Row'
     };
-    // this.filterSettings = {};
+
     this.rowService.rows$.subscribe((rows) => {
       this.rows = rows;
 
@@ -101,20 +102,21 @@ export class TreeGridComponent implements OnInit {
         this.queriedTreegrid.changes.subscribe(() => {
           this.clipboardService.init(this.treegrid);
         });
+      } else {
+        const sortedColumnFields = [];
+        this.columns.forEach(column => {
+          sortedColumnFields.push({
+            field: column.field,
+            direction: 'Descending'
+          });
+        });
+
+        this.sortSettings =  { columns: sortedColumnFields };
       }
     });
 
     this.columnService.columns$.subscribe((columns) => {
       this.columns = columns;
-      const sortedColumnFields = [];
-      columns.forEach(column => {
-        sortedColumnFields.push({
-          field: column.field,
-          direction: 'Ascending'
-        });
-      });
-      // this.customAttributes.
-      this.sortSettings =  { columns: sortedColumnFields };
       if (this.isLoading) {
         this.rowService.loadRows();
       }
@@ -126,7 +128,7 @@ export class TreeGridComponent implements OnInit {
     this.columnService.loadColumns();
 
     this.windowHeight$ = windowService.height$.pipe(
-      map(height => height - this.windowService.getScrollbarWidth() - 30)
+      map(height => height - this.windowService.getScrollbarWidth() - 70)
     );
     this.windowWidth$ = windowService.width$.pipe(
       map(width => width - this.windowService.getScrollbarWidth())
@@ -138,36 +140,34 @@ export class TreeGridComponent implements OnInit {
     this.editSettings = {
       allowEditing: false,
       allowAdding: false,
+      allowSorting: true,
       allowDeleting: true,
       mode: 'Dialog',
       showDeleteConfirmDialog: true
     };
 
     this.pageSettings = { pageCount: 5, pageSize: 90 };
-    const options = [];
-    this.columns.forEach(column => {
-      options.push({
-        field: column.field,
-        matchCase: false,
-        operator: 'startswith',
-        predicate: 'and',
-        value: column.value
-      });
-    });
-
-    this.filterOptions = {
-      columns: options
-    };
   }
 
   beforeCopy(args: any): void {
     const rowIndex = args.data.split('\t')[0].split('\n').at(-1);
-    this.copiedRow = this.treegrid.getRowByIndex(rowIndex) as HTMLElement;
+
+    if (this.copiedRow && this.copiedRow.rowIndex !== rowIndex) {
+      for (const cell of this.copiedRow.cells) {
+        const cellClassList = cell.classList;
+        const copiedRowCssClass = 'copied-cutted-row';
+        cellClassList.remove(copiedRowCssClass);
+      }
+    }
+    this.copiedRow = this.treegrid.getRowByIndex(rowIndex - 0) as HTMLElement;
 
     this.treegrid.copyHierarchyMode = 'None';
-    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
-    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
-    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+
+    for (const cell of this.copiedRow.cells) {
+      const cellClassList = cell.classList;
+      const copiedRowCssClass = 'copied-cutted-row';
+      cellClassList.add(copiedRowCssClass);
+    }
   }
 
   public contextMenuBeforeOpen(args: any): void {
