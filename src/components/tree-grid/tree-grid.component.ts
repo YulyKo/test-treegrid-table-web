@@ -9,6 +9,8 @@ import {
   EditSettingsModel, FilterSettingsModel, FreezeService, InfiniteScrollService,
   PageService,
   PageSettingsModel,
+  RowDDService,
+  SelectionService,
   SelectionSettingsModel,
   ToolbarService,
   TreeGridComponent as TreeGridComp,
@@ -38,7 +40,9 @@ import {ClipboardService} from '../../service/clipboard.service';
     ContextMenuService,
     InfiniteScrollService,
     ColumnChooserService,
-    FreezeService
+    FreezeService,
+    RowDDService,
+    SelectionService
   ]
 })
 export class TreeGridComponent implements OnInit {
@@ -61,6 +65,8 @@ export class TreeGridComponent implements OnInit {
 
   public editSettings: EditSettingsModel | any;
   public pageSettings: PageSettingsModel;
+  
+  public dropEditSettings = {allowEditing: true, allowAdding: true}
   public selectionOptions: SelectionSettingsModel;
   public sortSettings: object;
 
