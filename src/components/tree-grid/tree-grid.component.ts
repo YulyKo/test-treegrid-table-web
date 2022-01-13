@@ -310,7 +310,6 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'filter':
         this.allowFiltering = true;
-        // const filterElement = args.element as HTMLElement;
         filterElement.style.setProperty('--filterbar-pointer-events', 'pointed');
         break;
       case 'freeze':
@@ -321,21 +320,10 @@ export class TreeGridComponent implements OnInit {
         this.frozenColumns = 0;
         break;
       case 'multiSort':
-        // const sortedColumnFields = [];
-        // this.columns.forEach(column => {
-        //   sortedColumnFields.push({
-        //     field: column.field,
-        //     direction: 'Ascending'
-        //   });
-        // });
-
-        // this.sortSettings =  { columns: sortedColumnFields };
         this.allowMultiSorting = true;
-        // this.treegrid.sortByColumn(args.column.field, 'Ascending', true);
         break;
       case 'unmultiSort':
         this.allowMultiSorting = false;
-        // this.treegrid.removeSortColumn(args.column.field);
       }
 
     this.treegrid.clearSelection();
@@ -432,6 +420,40 @@ export class TreeGridComponent implements OnInit {
       el.style.setProperty('--cell-text-white-space', 'nowrap');
     } else {
       el.style.setProperty('--cell-text-white-space', 'normal');
+    }
+  }
+
+  rowDataBound(args: any): void {
+    if (args.data.taskID === 1) {
+      args.row.querySelector('td').innerHTML = ' ';  // hide the DragIcon(td element)
+    }
+  }
+  rowDragStartHelper(args: any): void {
+    if (args.data[0].taskID === 1) {
+      args.cancel = 'true';  // prevent Drag operations by setting args.cancel as true
+    }
+  }
+  rowDrop(args: any): void {
+    const treeGridobj = (document.getElementById('TreeGrid') as any).ej2_instances[0];
+    const data = treeGridobj.getCurrentViewRecords()[args.dropIndex];
+    if (data.hasChildRecords)  {
+      // apply your own customized condition
+      args.cancel = 'true';
+    }
+  }
+  rowDragStart(args: any): void {
+   args.rows[0].classList.add('e-dragclonerow'); // customize the dragged row here
+  }
+  rowDrag(args: any): void {
+     const treeGridobj = (document.getElementById('TreeGrid') as any).ej2_instances[0];
+     const rowEle: Element = args.target ? args.target.closest('tr') : null;
+     const rowIdx: number = rowEle ? (rowEle as HTMLTableRowElement).rowIndex : -1;
+     const currentData = treeGridobj.getCurrentViewRecords()[rowIdx];
+     if (rowIdx !== -1) {
+      if (currentData.hasChildRecords) {
+        treeGridobj.rowDragAndDropModule.addErrorElem();
+        // shown (no drop) icon for the parent records
+      }
     }
   }
 }

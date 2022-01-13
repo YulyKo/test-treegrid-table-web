@@ -4,13 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 
-import {FilterService, ReorderService, TreeGridModule} from '@syncfusion/ej2-angular-treegrid';
-import { SortService } from '@syncfusion/ej2-angular-grids';
+import { SortService, FilterService, ReorderService, TreeGridModule} from '@syncfusion/ej2-angular-treegrid';
 import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 import { DropDownListModule } from '@syncfusion/ej2-angular-dropdowns';
 import { NumericTextBoxModule } from '@syncfusion/ej2-angular-inputs';
 import { ContextMenuModule, ToolbarModule } from '@syncfusion/ej2-angular-navigations';
 import { DialogModule } from '@syncfusion/ej2-angular-popups';
+import { DropDownListAllModule  } from '@syncfusion/ej2-angular-dropdowns';
 import { CheckBoxAllModule, RadioButtonModule } from '@syncfusion/ej2-angular-buttons';
 
 import { AppService } from './service/app.service';
@@ -46,7 +46,8 @@ import {WindowService} from './service/window.service';
     DialogModule,
     ContextMenuModule,
     CheckBoxAllModule,
-    RadioButtonModule
+    RadioButtonModule,
+    DropDownListAllModule
   ],
   providers: [
     AppService,

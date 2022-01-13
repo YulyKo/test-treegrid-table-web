@@ -13,7 +13,8 @@
             allowTextWrap='true'
             allowSelection="true"
             allowReordering="true"
-            [allowSorting]="true"
+            [allowSorting]="allowMultiSorting"
+            [allowRowDragAndDrop]="true"
             [allowFiltering]='allowFiltering'
             enableInfiniteScrolling="true"
             [showColumnChooser]="true"
@@ -26,6 +27,11 @@
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
+            (rowDataBound)="rowDataBound($event)"
+            (rowDragStartHelper)="rowDragStartHelper($event)"
+            (rowDrop)="rowDrop($event)"
+            (rowDragStart)="rowDragStart($event)"
+            (rowDrag)="rowDrag($event)"
             >
             <!-- allowRowDragAndDrop="true" -->
             <!-- [allowMultiSorting]="allowMultiSorting" -->
