@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "serve": "node server.js",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
@@ -30,6 +31,7 @@
     "@syncfusion/ej2-angular-popups": "^19.4.38",
     "@syncfusion/ej2-angular-treegrid": "^19.4.38",
     "@syncfusion/ej2-data": "^19.4.38",
+    "express": "^4.17.2",
     "normalize.css": "^8.0.1",
     "reset-css": "^5.0.1",
     "rxjs": "~6.5.5",

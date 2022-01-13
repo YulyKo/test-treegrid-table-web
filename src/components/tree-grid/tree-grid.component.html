@@ -5,40 +5,51 @@
             #treegrid
             [dataSource]="rows"
             childMapping="subrows"
+            [treeColumnIndex]="1"
             copy="true"
             [height]="windowHeight$ | async"
             [width]="windowWidth$ | async"
-            treeColumnIndex="1"
             [frozenColumns]="frozenColumns"
+            allowTextWrap='true'
             allowSelection="true"
             allowReordering="true"
-            [allowSorting]="sorting"
-            [allowMultiSorting]="allowMultiSorting"
+            [allowSorting]="allowMultiSorting"
+            [allowResizing]='true'
+            [allowRowDragAndDrop]="true"
+            [allowFiltering]='allowFiltering'
             enableInfiniteScrolling="true"
             [showColumnChooser]="true"
             [pageSettings]="pageSettings"
             [editSettings]="editSettings"
             [selectionSettings]="selectionOptions"
+            [filterSettings]='filterOptions'
             (queryCellInfo)="customizeSelf($event)"
             (beforeCopy)="beforeCopy($event)"
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
-            [filterSettings]='filterOptions'
-            [allowFiltering]='allowFiltering'
-        >
+            (rowDataBound)="rowDataBound($event)"
+            (rowDragStartHelper)="rowDragStartHelper($event)"
+            (rowDrop)="rowDrop($event)"
+            (rowDragStart)="rowDragStart($event)"
+            (rowDrag)="rowDrag($event)"
+            >
+            <!-- allowRowDragAndDrop="true" -->
+            <!-- [allowMultiSorting]="allowMultiSorting" -->
             <e-columns>
                 <e-column
                   *ngFor="let column of columns"
                   [minWidth]='column.minWidth'
                   class="column.id"
                   width=200
-                  [columnName]="column.field"
                   [field]='column.field'
                   [headerText]='column.name'
                   [textAlign]='column.alignment'
-                  [format]="column.dataType === dataType.DATE && 'yMd'"
-                >
+                  [format]="column.dataType === dataType.DATE && 'dd/MM/yyyy'"
+                  [isPrimaryKey]="column.filed === 'index'"
+                  >
+<!--                  [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }"-->
+<!--                  882px 922-->
                 </e-column>
             </e-columns>
         </ejs-treegrid>

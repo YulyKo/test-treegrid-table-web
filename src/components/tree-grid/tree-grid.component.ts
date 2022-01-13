@@ -1,5 +1,5 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import { QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
+import {Component, HostListener, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {QueryCellInfoEventArgs, SaveEventArgs} from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import {
@@ -9,6 +9,9 @@ import {
   EditSettingsModel, FilterSettingsModel, FreezeService, InfiniteScrollService,
   PageService,
   PageSettingsModel,
+  ResizeService,
+  RowDDService,
+  SelectionService,
   SelectionSettingsModel,
   ToolbarService,
   TreeGridComponent as TreeGridComp,
@@ -25,6 +28,7 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+import { revertHighlightSearch } from '@syncfusion/ej2-angular-dropdowns';
 
 @Component({
   selector: 'app-tree-grid',
@@ -38,7 +42,10 @@ import {ClipboardService} from '../../service/clipboard.service';
     ContextMenuService,
     InfiniteScrollService,
     ColumnChooserService,
-    FreezeService
+    FreezeService,
+    RowDDService,
+    SelectionService,
+    ResizeService
   ]
 })
 export class TreeGridComponent implements OnInit {
@@ -57,11 +64,15 @@ export class TreeGridComponent implements OnInit {
 
   public readonly dataType = DataType;
   public readonly contextMenuItems = CONTEXT_MENU_ITEMS;
+  private readonly copyCutRowCssClass = ' copied-cutted-row';
 
   public editSettings: EditSettingsModel | any;
   public pageSettings: PageSettingsModel;
+
+  public dropEditSettings = {allowEditing: true, allowAdding: true};
   public selectionOptions: SelectionSettingsModel;
   public sortSettings: object;
+
   public windowHeight$: Observable<number>;
   public windowWidth$: Observable<number>;
 
@@ -72,23 +83,26 @@ export class TreeGridComponent implements OnInit {
   columns: any[] = [];
   columnsList: any[] = [];
   rows: IRow[] = [];
-  private copiedRow: Element;
+  private copiedRows: any[] = []; // Element | HTMLElement;
+  private cutedRows: any; // Element | HTMLElement;
   listHeaders = [];
 
-  allowFiltering = true;
+  public allowFiltering = true;
   filterOptions: FilterSettingsModel;
-  public allowMultiSorting = true;
-  public sorting = false;
-  private frozenColumns = 0;
+  public allowMultiSorting = false;
+  public frozenColumns = 0;
 
   constructor(
-    private appService: AppService,
     private columnService: ColumnService,
     private rowService: RowService,
     private windowService: WindowService,
     private clipboardService: ClipboardService
   ) {
-    // this.filterSettings = {};
+    this.selectionOptions = {
+      type: 'Multiple',
+      mode: 'Row'
+    };
+
     this.rowService.rows$.subscribe((rows) => {
       this.rows = rows;
 
@@ -103,14 +117,6 @@ export class TreeGridComponent implements OnInit {
 
     this.columnService.columns$.subscribe((columns) => {
       this.columns = columns;
-      const sortedColumnFields = [];
-      columns.forEach(column => {
-        sortedColumnFields.push({
-          field: column.field,
-          direction: 'Ascending'
-        });
-      });
-      this.sortSettings =  { columns: sortedColumnFields };
       if (this.isLoading) {
         this.rowService.loadRows();
       }
@@ -122,7 +128,7 @@ export class TreeGridComponent implements OnInit {
     this.columnService.loadColumns();
 
     this.windowHeight$ = windowService.height$.pipe(
-      map(height => height - this.windowService.getScrollbarWidth() - 30)
+      map(height => height - this.windowService.getScrollbarWidth() - 70)
     );
     this.windowWidth$ = windowService.width$.pipe(
       map(width => width - this.windowService.getScrollbarWidth())
@@ -136,42 +142,79 @@ export class TreeGridComponent implements OnInit {
       allowAdding: false,
       allowDeleting: true,
       mode: 'Dialog',
-      // newRowPosition: 'Child',
       showDeleteConfirmDialog: true
-    };
-    document.getElementsByClassName('e-filterbar').item(0).setAttribute('style', 'pointer-events: none;');
-    this.selectionOptions = {
-      type: 'Multiple',
-      mode: 'Row'
     };
 
     this.pageSettings = { pageCount: 5, pageSize: 90 };
-    const options = [];
-    this.columns.forEach(column => {
-      options.push({
-        field: column.field,
-        matchCase: false,
-        operator: 'startswith',
-        predicate: 'and',
-        value: column.value
-      });
+  }
+
+  actionBegin(args: SaveEventArgs): void {
+    if (args.requestType === 'save') {
+      console.log('actionBegin', args.requestType);
+    }
+  }
+
+  changeChildNodeStyles(newClasses: string): void {
+    this.copiedRows.forEach(copiedRow => {
+      //  && copiedRow.rowIndex !== rowIndex
+
+      if (this.copiedRows.length > 0) {
+        for (const childNode of copiedRow.childNodes) {
+          let copiedRowCssClass = childNode.getAttribute('class');
+          if (newClasses === this.copyCutRowCssClass) {
+            copiedRowCssClass = copiedRowCssClass + newClasses;
+          } else {
+            copiedRowCssClass = copiedRowCssClass.replace(this.copyCutRowCssClass, '');
+            // this.copiedRows = this.copiedRows.filter(item => item !== copiedRow);
+          }
+          childNode.setAttribute('class', copiedRowCssClass);
+        }
+      }
+    });
+  }
+
+  writeClipboardData(rowIndexes: number[], goal: 'copy' | 'cut', placeForLocalSave: any[]): void {
+    if (placeForLocalSave.length > 0) {
+      this.changeChildNodeStyles('');
+      placeForLocalSave = [];
+    }
+
+    rowIndexes.forEach(index => {
+      // when copy index allways more than 1
+      const rowIndex = goal === 'copy' ? index - 1 : index;
+      const rowElement = this.treegrid.getRowByIndex(rowIndex) as HTMLElement;
+      placeForLocalSave.push(rowElement);
     });
 
-    this.filterOptions = {
-      columns: options
-    };
+    this.treegrid.copyHierarchyMode = 'None';
+
+    this.changeChildNodeStyles(this.copyCutRowCssClass);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyPress($event: KeyboardEvent): void {
+    // Ctrl + X
+    if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 88) {
+      const rowIndexes = [];
+      this.treegrid.getSelectedRowIndexes().forEach(item => {
+        rowIndexes.push(item);
+      });
+      this.writeClipboardData(rowIndexes, 'cut', this.cutedRows);
+    }
   }
 
   beforeCopy(args: any): void {
-    console.log(args.data.split('\t')[this.columns.length - 1].split('\n'));
-    const rowIndex = args.data.split('\t')[this.columns.length - 1].split('\n').at(-1);
-    console.log(rowIndex);
-    this.copiedRow = this.treegrid.getRowByIndex(rowIndex + 1);
+    const rowIndexes = [];
+    const zeroRowIndex = args.data.split('\t')[0].split('\n').at(-1);
+    rowIndexes.push(zeroRowIndex);
 
-    this.treegrid.copyHierarchyMode = 'None';
-    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
-    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
-    this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+    args.data.split('\t').forEach(item => {
+      if (item.includes('\n')) {
+        const id = +item.replace('\n', '');
+        rowIndexes.push(id);
+      }
+    });
+    this.writeClipboardData(rowIndexes, 'copy', this.copiedRows);
   }
 
   public contextMenuBeforeOpen(args: any): void {
@@ -195,10 +238,19 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#multiSort').style.display = 'block';
     }
 
-    if (this.selectionOptions.type === 'Single') {
+    const selectedColumnIndex = args.column.index + 1;
+    if (this.frozenColumns !== selectedColumnIndex) {
+      args.element.querySelector('#freeze').style.display = 'block';
+      args.element.querySelector('#unfreeze').style.display = 'none';
+    } else if (this.frozenColumns === selectedColumnIndex) {
+      args.element.querySelector('#freeze').style.display = 'none';
+      args.element.querySelector('#unfreeze').style.display = 'block';
+    }
+
+    if (this.selectionOptions.type && this.selectionOptions.type === 'Single') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'none';
       args.element.querySelector('#multiSelect').style.display = 'block';
-    } else if (this.selectionOptions.type === 'Multiple') {
+    } else if ( this.selectionOptions.type && this.selectionOptions.type === 'Multiple') {
       args.element.querySelector('#cancelMultiSelect').style.display = 'block';
       args.element.querySelector('#multiSelect').style.display = 'none';
     }
@@ -210,7 +262,7 @@ export class TreeGridComponent implements OnInit {
   contextMenuClick(args: any): void {
     this.isColumnFormOpen = false;
     this.isRowFormOpen = false;
-    const rowIndex = args.rowInfo.rowIndex;
+    const filterElement = args.element as HTMLElement;
     switch (args.item.id) {
       // column
       case 'newCol':
@@ -240,19 +292,34 @@ export class TreeGridComponent implements OnInit {
       case 'delRow':
         this.deleteRow(args.rowInfo.rowData);
         break;
-      case 'copyRows':
-        this.copiedRow = this.treegrid.getRowByIndex(rowIndex);
-        console.log(this.copiedRow);
+      case 'rowCut':
+        this.changeChildNodeStyles('');
+        this.cutedRows = args.rowInfo.rowData;
         this.treegrid.copyHierarchyMode = 'None';
         this.treegrid.copy();
-        this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+        this.changeChildNodeStyles(this.copyCutRowCssClass);
+        break;
+      case 'copyRows':
+        this.changeChildNodeStyles('');
+        this.treegrid.copyHierarchyMode = 'None';
+        this.treegrid.copy();
+        this.changeChildNodeStyles(this.copyCutRowCssClass);
         break;
       case 'rowPasteNext':
         this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
+        if (this.cutedRows) {
+          const path = this.rowService.getRowPath(this.cutedRows);
+          this.rowService.removeRow(path);
+          this.cutedRows = null;
+        }
         break;
       case 'rowPasteChild':
         this.clipboardService.paste('child', this.rowService.getRowPath(args.rowInfo.rowData));
-        this.copiedRow.setAttribute('style', 'background: #FFF;');
+        if (this.cutedRows) {
+          const path = this.rowService.getRowPath(this.cutedRows);
+          this.rowService.removeRow(path);
+          this.cutedRows = null;
+        }
         break;
       case 'multiSelect':
         this.treegrid.selectionSettings.type = 'Multiple';
@@ -266,31 +333,26 @@ export class TreeGridComponent implements OnInit {
         this.treegrid.columnChooserModule.openColumnChooser();
         break;
       case 'unfilter':
-        // this.allowFiltering = false;
-        args.element.querySelector('.e-filterbar').setAttribute('style', 'pointer-events: none;');
-        this.treegrid.allowFiltering = false;
+        this.allowFiltering = false;
         break;
       case 'filter':
-        // this.allowFiltering = true;
-        args.element.querySelector('.e-filterbar').setAttribute('style', 'pointer-events: pointed;');
-        this.treegrid.allowFiltering = true;
+        this.allowFiltering = true;
+        filterElement.style.setProperty('--filterbar-pointer-events', 'pointed');
         break;
       case 'freeze':
-        const index = args.column.index as number;
+        const index = args.column.index + 1;
+        this.frozenColumns = index;
+        break;
+      case 'unfreeze':
         this.frozenColumns = 0;
-        this.frozenColumns = this.treegrid.frozenColumns === index ? 0 : index;
         break;
       case 'multiSort':
-        // this.allowMultiSorting = !this.treegrid.allowMultiSorting;
-        console.log(args.column.field);
-        // this.sorting = !this.sorting;
-        // this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
+        this.allowMultiSorting = true;
         break;
       case 'unmultiSort':
-        this.treegrid.removeSortColumn(args.column.field);
+        this.allowMultiSorting = false;
       }
 
-    //    replace col index 1 with selected col
     this.treegrid.clearSelection();
   }
 
@@ -305,6 +367,7 @@ export class TreeGridComponent implements OnInit {
 
   deleteColumn(field: string): void {
     const column = this.columnService.findByColumnField(field);
+
 
     this.showConfirm('Delete Column', `Are you sure that you want to delete column "${column.name}"`, () => {
       this.columnService.remove(column);
@@ -352,7 +415,6 @@ export class TreeGridComponent implements OnInit {
     columnElement.classList.add('header-cell');
 
     const initialColumn = this.columnService.findByColumnField(field);
-
     if (!initialColumn) {
       return;
     }
@@ -380,11 +442,46 @@ export class TreeGridComponent implements OnInit {
     el.style.setProperty('--cell-bg-color', column.backgroundColor);
     el.style.setProperty('--cell-color', column.fontColor);
     el.style.setProperty('--cell-font-size', `${ column.fontSize }px`);
+
+    // not work
     if (column.textWrap) {
-      // el.style.setProperty('--cell-text-wrap', 'break-word');
       el.style.setProperty('--cell-text-white-space', 'nowrap');
     } else {
       el.style.setProperty('--cell-text-white-space', 'normal');
+    }
+  }
+
+  rowDataBound(args: any): void {
+    if (args.data.taskID === 1) {
+      args.row.querySelector('td').innerHTML = ' ';  // hide the DragIcon(td element)
+    }
+  }
+  rowDragStartHelper(args: any): void {
+    if (args.data[0].taskID === 1) {
+      args.cancel = 'true';  // prevent Drag operations by setting args.cancel as true
+    }
+  }
+  rowDrop(args: any): void {
+    const treeGridobj = (document.getElementById('TreeGrid') as any).ej2_instances[0];
+    const data = treeGridobj.getCurrentViewRecords()[args.dropIndex];
+    if (data.hasChildRecords)  {
+      // apply your own customized condition
+      args.cancel = 'true';
+    }
+  }
+  rowDragStart(args: any): void {
+   args.rows[0].classList.add('e-dragclonerow'); // customize the dragged row here
+  }
+  rowDrag(args: any): void {
+     const treeGridobj = (document.getElementById('TreeGrid') as any).ej2_instances[0];
+     const rowEle: Element = args.target ? args.target.closest('tr') : null;
+     const rowIdx: number = rowEle ? (rowEle as HTMLTableRowElement).rowIndex : -1;
+     const currentData = treeGridobj.getCurrentViewRecords()[rowIdx];
+     if (rowIdx !== -1) {
+      if (currentData.hasChildRecords) {
+        treeGridobj.rowDragAndDropModule.addErrorElem();
+        // shown (no drop) icon for the parent records
+      }
     }
   }
 }
