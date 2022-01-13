@@ -1,4 +1,4 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {Component, HostListener, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {QueryCellInfoEventArgs, SaveEventArgs} from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
@@ -79,7 +79,6 @@ export class TreeGridComponent implements OnInit {
 
   public allowFiltering = true;
   filterOptions: FilterSettingsModel;
-  public allowMultiSorting = false;
   public frozenColumns = 0;
 
   constructor(
@@ -130,7 +129,7 @@ export class TreeGridComponent implements OnInit {
     this.editSettings = {
       allowEditing: false,
       allowAdding: false,
-      allowSorting: true,
+      allowSorting: false,
       allowDeleting: true,
       mode: 'Dialog',
       showDeleteConfirmDialog: true
@@ -141,14 +140,14 @@ export class TreeGridComponent implements OnInit {
 
   actionBegin(args: SaveEventArgs): void {
     if (args.requestType === 'save') {
-      console.log("actionBegin", args.requestType);
+      console.log('actionBegin', args.requestType);
     }
   }
 
   changeChildNodeStyles(newClasses: string): void {
     this.copiedRows.forEach(copiedRow => {
       //  && copiedRow.rowIndex !== rowIndex
-      
+
       if (this.copiedRows.length > 0) {
         for (const childNode of copiedRow.childNodes) {
           let copiedRowCssClass = childNode.getAttribute('class');
@@ -164,8 +163,38 @@ export class TreeGridComponent implements OnInit {
     });
   }
 
+  writeClipboardData(rowIndexes: number[], goal: 'copy' | 'cut'): void {
+    if (this.copiedRows.length > 0) {
+      this.changeChildNodeStyles('');
+      this.copiedRows = [];
+    }
+
+    rowIndexes.forEach(index => {
+      // when copy index allways more than 1
+      const rowIndex = goal === 'copy' ? index - 1 : index;
+      const rowElement = this.treegrid.getRowByIndex(rowIndex) as HTMLElement;
+      this.copiedRows.push(rowElement);
+    });
+
+    this.treegrid.copyHierarchyMode = 'None';
+
+    this.changeChildNodeStyles(this.copyCutRowCssClass);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyPress($event: KeyboardEvent): void {
+    // Ctrl + X
+    if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 88) {
+      const rowIndexes = [];
+      this.treegrid.getSelectedRowIndexes().forEach(item => {
+        rowIndexes.push(item);
+      });
+      this.writeClipboardData(rowIndexes, 'cut');
+    }
+  }
+
   beforeCopy(args: any): void {
-    let rowIndexes = [];
+    const rowIndexes = [];
     const zeroRowIndex = args.data.split('\t')[0].split('\n').at(-1);
     rowIndexes.push(zeroRowIndex);
 
@@ -175,20 +204,7 @@ export class TreeGridComponent implements OnInit {
         rowIndexes.push(id);
       }
     });
-    
-    if (this.copiedRows.length > 0) {
-      this.changeChildNodeStyles('');
-      this.copiedRows = [];
-    }
-
-    rowIndexes.forEach(index => {
-      const rowElement = this.treegrid.getRowByIndex(index - 1) as HTMLElement;
-      this.copiedRows.push(rowElement);
-    });
-
-    this.treegrid.copyHierarchyMode = 'None';
-
-    this.changeChildNodeStyles(this.copyCutRowCssClass);
+    this.writeClipboardData(rowIndexes, 'copy');
   }
 
   public contextMenuBeforeOpen(args: any): void {
@@ -236,7 +252,6 @@ export class TreeGridComponent implements OnInit {
   contextMenuClick(args: any): void {
     this.isColumnFormOpen = false;
     this.isRowFormOpen = false;
-    const rowIndex = args.rowInfo.rowIndex;
     const filterElement = args.element as HTMLElement;
     switch (args.item.id) {
       // column
@@ -270,7 +285,6 @@ export class TreeGridComponent implements OnInit {
       case 'copyRows':
         this.changeChildNodeStyles('');
         this.treegrid.copyHierarchyMode = 'None';
-        // this.copiedRows = this.treegrid.getRowByIndex(rowIndex - 1);
         this.treegrid.copy();
         this.changeChildNodeStyles(this.copyCutRowCssClass);
         break;
@@ -279,7 +293,6 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'rowPasteChild':
         this.clipboardService.paste('child', this.rowService.getRowPath(args.rowInfo.rowData));
-        // this.copiedRows.setAttribute('style', 'background: #FFF;');
         break;
       case 'multiSelect':
         this.treegrid.selectionSettings.type = 'Multiple';
@@ -312,14 +325,16 @@ export class TreeGridComponent implements OnInit {
         this.columns.forEach(column => {
           sortedColumnFields.push({
             field: column.field,
-            direction: 'Descending'
+            direction: 'Ascending'
           });
         });
 
         this.sortSettings =  { columns: sortedColumnFields };
-        this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
+        this.editSettings.allowSorting = true;
+        this.treegrid.sortByColumn(args.column.field, 'Ascending', true);
         break;
       case 'unmultiSort':
+        this.editSettings.allowSorting = false;
         this.treegrid.removeSortColumn(args.column.field);
       }
 

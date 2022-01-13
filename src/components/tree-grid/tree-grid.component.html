@@ -13,7 +13,7 @@
             allowTextWrap='true'
             allowSelection="true"
             allowReordering="true"
-            allowSorting="true"
+            [allowSorting]="this.allowSorting"
             [allowFiltering]='allowFiltering'
             enableInfiniteScrolling="true"
             [showColumnChooser]="true"
@@ -26,8 +26,9 @@
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
-        >
-<!--            [allowMultiSorting]="allowMultiSorting"-->
+            >
+            <!-- allowRowDragAndDrop="true" -->
+            <!-- [allowMultiSorting]="allowMultiSorting" -->
             <e-columns>
                 <e-column
                   *ngFor="let column of columns"
