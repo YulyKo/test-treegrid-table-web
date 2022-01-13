@@ -1,5 +1,5 @@
 import {Component, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {QueryCellInfoEventArgs} from '@syncfusion/ej2-angular-grids';
+import {QueryCellInfoEventArgs, SaveEventArgs} from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 import {
@@ -74,12 +74,12 @@ export class TreeGridComponent implements OnInit {
   columns: any[] = [];
   columnsList: any[] = [];
   rows: IRow[] = [];
-  private copiedRow: any; // Element | HTMLElement;
+  private copiedRows: any[] = []; // Element | HTMLElement;
   listHeaders = [];
 
   public allowFiltering = true;
   filterOptions: FilterSettingsModel;
-  public allowMultiSorting = true;
+  public allowMultiSorting = false;
   public frozenColumns = 0;
 
   constructor(
@@ -102,16 +102,6 @@ export class TreeGridComponent implements OnInit {
         this.queriedTreegrid.changes.subscribe(() => {
           this.clipboardService.init(this.treegrid);
         });
-      } else {
-        const sortedColumnFields = [];
-        this.columns.forEach(column => {
-          sortedColumnFields.push({
-            field: column.field,
-            direction: 'Descending'
-          });
-        });
-
-        this.sortSettings =  { columns: sortedColumnFields };
       }
     });
 
@@ -149,29 +139,56 @@ export class TreeGridComponent implements OnInit {
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
 
-  changeChildNodeStyles(rowIndex: number, newClasses: string): void {
-    if (this.copiedRow && this.copiedRow.rowIndex !== rowIndex) {
-      for (const childNode of this.copiedRow.childNodes) {
-        let copiedRowCssClass = childNode.getAttribute('class');
-        if (newClasses === this.copyCutRowCssClass) {
-          copiedRowCssClass = copiedRowCssClass + newClasses;
-        } else {
-          copiedRowCssClass = copiedRowCssClass.replace(this.copyCutRowCssClass, '');
-        }
-        childNode.setAttribute('class', copiedRowCssClass);
-      }
+  actionBegin(args: SaveEventArgs): void {
+    if (args.requestType === 'save') {
+      console.log("actionBegin", args.requestType);
     }
   }
 
+  changeChildNodeStyles(newClasses: string): void {
+    this.copiedRows.forEach(copiedRow => {
+      //  && copiedRow.rowIndex !== rowIndex
+      
+      if (this.copiedRows.length > 0) {
+        for (const childNode of copiedRow.childNodes) {
+          let copiedRowCssClass = childNode.getAttribute('class');
+          if (newClasses === this.copyCutRowCssClass) {
+            copiedRowCssClass = copiedRowCssClass + newClasses;
+          } else {
+            copiedRowCssClass = copiedRowCssClass.replace(this.copyCutRowCssClass, '');
+            // this.copiedRows = this.copiedRows.filter(item => item !== copiedRow);
+          }
+          childNode.setAttribute('class', copiedRowCssClass);
+        }
+      }
+    });
+  }
+
   beforeCopy(args: any): void {
-    const rowIndex = args.data.split('\t')[0].split('\n').at(-1);
+    let rowIndexes = [];
+    const zeroRowIndex = args.data.split('\t')[0].split('\n').at(-1);
+    rowIndexes.push(zeroRowIndex);
 
-    this.changeChildNodeStyles(rowIndex, '');
+    args.data.split('\t').forEach(item => {
+      if (item.includes('\n')) {
+        const id = +item.replace('\n', '');
+        rowIndexes.push(id);
+      }
+    });
+    
+    if (this.copiedRows.length > 0) {
+      this.changeChildNodeStyles('');
+      this.copiedRows = [];
+    }
 
-    this.copiedRow = this.treegrid.getRowByIndex(rowIndex - 1) as HTMLElement;
+    rowIndexes.forEach(index => {
+      const rowElement = this.treegrid.getRowByIndex(index - 1) as HTMLElement;
+      this.copiedRows.push(rowElement);
+    });
+
     this.treegrid.copyHierarchyMode = 'None';
 
-    this.changeChildNodeStyles(rowIndex, this.copyCutRowCssClass);
+    this.changeChildNodeStyles(this.copyCutRowCssClass);
   }
 
   public contextMenuBeforeOpen(args: any): void {
@@ -251,18 +268,18 @@ export class TreeGridComponent implements OnInit {
         this.deleteRow(args.rowInfo.rowData);
         break;
       case 'copyRows':
-        this.changeChildNodeStyles(rowIndex, '');
+        this.changeChildNodeStyles('');
         this.treegrid.copyHierarchyMode = 'None';
-        this.copiedRow = this.treegrid.getRowByIndex(rowIndex - 1);
+        // this.copiedRows = this.treegrid.getRowByIndex(rowIndex - 1);
         this.treegrid.copy();
-        this.changeChildNodeStyles(rowIndex, this.copyCutRowCssClass);
+        this.changeChildNodeStyles(this.copyCutRowCssClass);
         break;
       case 'rowPasteNext':
         this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
         break;
       case 'rowPasteChild':
         this.clipboardService.paste('child', this.rowService.getRowPath(args.rowInfo.rowData));
-        this.copiedRow.setAttribute('style', 'background: #FFF;');
+        // this.copiedRows.setAttribute('style', 'background: #FFF;');
         break;
       case 'multiSelect':
         this.treegrid.selectionSettings.type = 'Multiple';
@@ -291,13 +308,21 @@ export class TreeGridComponent implements OnInit {
         this.frozenColumns = 0;
         break;
       case 'multiSort':
+        const sortedColumnFields = [];
+        this.columns.forEach(column => {
+          sortedColumnFields.push({
+            field: column.field,
+            direction: 'Descending'
+          });
+        });
+
+        this.sortSettings =  { columns: sortedColumnFields };
         this.treegrid.sortByColumn(args.column.field, 'Descending', this.allowMultiSorting);
         break;
       case 'unmultiSort':
         this.treegrid.removeSortColumn(args.column.field);
       }
 
-    //    replace col index 1 with selected col
     this.treegrid.clearSelection();
   }
 
