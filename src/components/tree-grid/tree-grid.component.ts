@@ -28,6 +28,7 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+import { revertHighlightSearch } from '@syncfusion/ej2-angular-dropdowns';
 
 @Component({
   selector: 'app-tree-grid',
@@ -83,6 +84,7 @@ export class TreeGridComponent implements OnInit {
   columnsList: any[] = [];
   rows: IRow[] = [];
   private copiedRows: any[] = []; // Element | HTMLElement;
+  private cutedRows: any; // Element | HTMLElement;
   listHeaders = [];
 
   public allowFiltering = true;
@@ -171,17 +173,17 @@ export class TreeGridComponent implements OnInit {
     });
   }
 
-  writeClipboardData(rowIndexes: number[], goal: 'copy' | 'cut'): void {
-    if (this.copiedRows.length > 0) {
+  writeClipboardData(rowIndexes: number[], goal: 'copy' | 'cut', placeForLocalSave: any[]): void {
+    if (placeForLocalSave.length > 0) {
       this.changeChildNodeStyles('');
-      this.copiedRows = [];
+      placeForLocalSave = [];
     }
 
     rowIndexes.forEach(index => {
       // when copy index allways more than 1
       const rowIndex = goal === 'copy' ? index - 1 : index;
       const rowElement = this.treegrid.getRowByIndex(rowIndex) as HTMLElement;
-      this.copiedRows.push(rowElement);
+      placeForLocalSave.push(rowElement);
     });
 
     this.treegrid.copyHierarchyMode = 'None';
@@ -197,7 +199,7 @@ export class TreeGridComponent implements OnInit {
       this.treegrid.getSelectedRowIndexes().forEach(item => {
         rowIndexes.push(item);
       });
-      this.writeClipboardData(rowIndexes, 'cut');
+      this.writeClipboardData(rowIndexes, 'cut', this.cutedRows);
     }
   }
 
@@ -212,7 +214,7 @@ export class TreeGridComponent implements OnInit {
         rowIndexes.push(id);
       }
     });
-    this.writeClipboardData(rowIndexes, 'copy');
+    this.writeClipboardData(rowIndexes, 'copy', this.copiedRows);
   }
 
   public contextMenuBeforeOpen(args: any): void {
@@ -290,6 +292,13 @@ export class TreeGridComponent implements OnInit {
       case 'delRow':
         this.deleteRow(args.rowInfo.rowData);
         break;
+      case 'rowCut':
+        this.changeChildNodeStyles('');
+        this.cutedRows = args.rowInfo.rowData;
+        this.treegrid.copyHierarchyMode = 'None';
+        this.treegrid.copy();
+        this.changeChildNodeStyles(this.copyCutRowCssClass);
+        break;
       case 'copyRows':
         this.changeChildNodeStyles('');
         this.treegrid.copyHierarchyMode = 'None';
@@ -298,9 +307,19 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'rowPasteNext':
         this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
+        if (this.cutedRows) {
+          const path = this.rowService.getRowPath(this.cutedRows);
+          this.rowService.removeRow(path);
+          this.cutedRows = null;
+        }
         break;
       case 'rowPasteChild':
         this.clipboardService.paste('child', this.rowService.getRowPath(args.rowInfo.rowData));
+        if (this.cutedRows) {
+          const path = this.rowService.getRowPath(this.cutedRows);
+          this.rowService.removeRow(path);
+          this.cutedRows = null;
+        }
         break;
       case 'multiSelect':
         this.treegrid.selectionSettings.type = 'Multiple';
@@ -348,6 +367,7 @@ export class TreeGridComponent implements OnInit {
 
   deleteColumn(field: string): void {
     const column = this.columnService.findByColumnField(field);
+
 
     this.showConfirm('Delete Column', `Are you sure that you want to delete column "${column.name}"`, () => {
       this.columnService.remove(column);
