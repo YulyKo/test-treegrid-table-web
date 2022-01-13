@@ -9,8 +9,8 @@ export const CONTEXT_MENU_ITEMS: ContextMenuItemModel[] = [
   {text: 'Paste Row Next', target: '.e-content', id: 'rowPasteNext'},
   {text: 'Paste Row as Child', target: '.e-content', id: 'rowPasteChild'},
   {text: 'Cut Row', target: '.e-content', id: 'rowCut'},
-  {text: '☑  Multi-Select', target: '.e-content', id: 'cancelMultiSelect'},
-  {text: '▢ Multi-Select', target: '.e-content', id: 'multiSelect'},
+  {text: '▢ Multi-Select', target: '.e-content', id: 'cancelMultiSelect'},
+  {text: '☑ Multi-Select', target: '.e-content', id: 'multiSelect'},
 
   {text: 'Edit Column', target: '.e-headercontent', id: 'editCol'},
   {text: 'Add Column', target: '.e-headercontent', id: 'newCol'},
