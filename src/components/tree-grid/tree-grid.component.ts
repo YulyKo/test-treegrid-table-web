@@ -25,7 +25,6 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
-import {logging} from 'protractor';
 
 @Component({
   selector: 'app-tree-grid',
@@ -58,6 +57,7 @@ export class TreeGridComponent implements OnInit {
 
   public readonly dataType = DataType;
   public readonly contextMenuItems = CONTEXT_MENU_ITEMS;
+  private readonly copyCutRowCssClass = ' copied-cutted-row';
 
   public editSettings: EditSettingsModel | any;
   public pageSettings: PageSettingsModel;
@@ -149,25 +149,29 @@ export class TreeGridComponent implements OnInit {
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
 
+  changeChildNodeStyles(rowIndex: number, newClasses: string): void {
+    if (this.copiedRow && this.copiedRow.rowIndex !== rowIndex) {
+      for (const childNode of this.copiedRow.childNodes) {
+        let copiedRowCssClass = childNode.getAttribute('class');
+        if (newClasses === '') {
+          copiedRowCssClass = copiedRowCssClass.replace(this.copyCutRowCssClass, '');
+        } else {
+          copiedRowCssClass = copiedRowCssClass + newClasses;
+        }
+        childNode.setAttribute('class', copiedRowCssClass);
+      }
+    }
+  }
+
   beforeCopy(args: any): void {
     const rowIndex = args.data.split('\t')[0].split('\n').at(-1);
 
-    if (this.copiedRow && this.copiedRow.rowIndex !== rowIndex) {
-      for (const cell of this.copiedRow.cells) {
-        const cellClassList = cell.classList;
-        const copiedRowCssClass = 'copied-cutted-row';
-        cellClassList.remove(copiedRowCssClass);
-      }
-    }
-    this.copiedRow = this.treegrid.getRowByIndex(rowIndex - 0) as HTMLElement;
+    this.changeChildNodeStyles(rowIndex, '');
 
+    this.copiedRow = this.treegrid.getRowByIndex(rowIndex - 1) as HTMLElement;
     this.treegrid.copyHierarchyMode = 'None';
 
-    for (const cell of this.copiedRow.cells) {
-      const cellClassList = cell.classList;
-      const copiedRowCssClass = 'copied-cutted-row';
-      cellClassList.add(copiedRowCssClass);
-    }
+    this.changeChildNodeStyles(rowIndex, this.copyCutRowCssClass);
   }
 
   public contextMenuBeforeOpen(args: any): void {
@@ -247,10 +251,11 @@ export class TreeGridComponent implements OnInit {
         this.deleteRow(args.rowInfo.rowData);
         break;
       case 'copyRows':
-        this.copiedRow = this.treegrid.getRowByIndex(rowIndex);
+        this.changeChildNodeStyles(rowIndex, '');
         this.treegrid.copyHierarchyMode = 'None';
+        this.copiedRow = this.treegrid.getRowByIndex(rowIndex - 1);
         this.treegrid.copy();
-        this.copiedRow.setAttribute('style', 'background: #FFC0CB;');
+        this.changeChildNodeStyles(rowIndex, this.copyCutRowCssClass);
         break;
       case 'rowPasteNext':
         this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
