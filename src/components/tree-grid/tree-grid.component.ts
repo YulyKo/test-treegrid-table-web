@@ -79,6 +79,7 @@ export class TreeGridComponent implements OnInit {
 
   public allowFiltering = true;
   filterOptions: FilterSettingsModel;
+  public allowMultiSorting = false;
   public frozenColumns = 0;
 
   constructor(
@@ -129,7 +130,6 @@ export class TreeGridComponent implements OnInit {
     this.editSettings = {
       allowEditing: false,
       allowAdding: false,
-      allowSorting: false,
       allowDeleting: true,
       mode: 'Dialog',
       showDeleteConfirmDialog: true
@@ -321,21 +321,21 @@ export class TreeGridComponent implements OnInit {
         this.frozenColumns = 0;
         break;
       case 'multiSort':
-        const sortedColumnFields = [];
-        this.columns.forEach(column => {
-          sortedColumnFields.push({
-            field: column.field,
-            direction: 'Ascending'
-          });
-        });
+        // const sortedColumnFields = [];
+        // this.columns.forEach(column => {
+        //   sortedColumnFields.push({
+        //     field: column.field,
+        //     direction: 'Ascending'
+        //   });
+        // });
 
-        this.sortSettings =  { columns: sortedColumnFields };
-        this.editSettings.allowSorting = true;
-        this.treegrid.sortByColumn(args.column.field, 'Ascending', true);
+        // this.sortSettings =  { columns: sortedColumnFields };
+        this.allowMultiSorting = true;
+        // this.treegrid.sortByColumn(args.column.field, 'Ascending', true);
         break;
       case 'unmultiSort':
-        this.editSettings.allowSorting = false;
-        this.treegrid.removeSortColumn(args.column.field);
+        this.allowMultiSorting = false;
+        // this.treegrid.removeSortColumn(args.column.field);
       }
 
     this.treegrid.clearSelection();
