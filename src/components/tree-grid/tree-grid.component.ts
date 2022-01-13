@@ -153,10 +153,10 @@ export class TreeGridComponent implements OnInit {
     if (this.copiedRow && this.copiedRow.rowIndex !== rowIndex) {
       for (const childNode of this.copiedRow.childNodes) {
         let copiedRowCssClass = childNode.getAttribute('class');
-        if (newClasses === '') {
-          copiedRowCssClass = copiedRowCssClass.replace(this.copyCutRowCssClass, '');
-        } else {
+        if (newClasses === this.copyCutRowCssClass) {
           copiedRowCssClass = copiedRowCssClass + newClasses;
+        } else {
+          copiedRowCssClass = copiedRowCssClass.replace(this.copyCutRowCssClass, '');
         }
         childNode.setAttribute('class', copiedRowCssClass);
       }
