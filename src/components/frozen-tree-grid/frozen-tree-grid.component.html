@@ -9,14 +9,16 @@
             copy="true"
             [height]="windowHeight$ | async"
             [width]="windowWidth$ | async"
-            allowTextWrap="true"
+            [frozenColumns]="frozenColumns"
+            allowTextWrap='true'
             allowSelection="true"
-            allowReordering="true"
+            allowReordering="true" 
             [allowSorting]="allowMultiSorting"
-            [allowResizing]="true"
+            [allowResizing]='true'
             [allowRowDragAndDrop]="true"
-            [allowFiltering]="allowFiltering"
-            [enableInfiniteScrolling]="true"
+            [allowFiltering]='allowFiltering'
+            [enableInfiniteScrolling]="frozenColumns !== 0"
+            [enableVirtualization]="frozenColumns === 0"
             [showColumnChooser]="true"
             [pageSettings]="pageSettings"
             [editSettings]="editSettings"
@@ -32,8 +34,9 @@
             (rowDrop)="rowDrop($event)"
             (rowDragStart)="rowDragStart($event)"
             (rowDrag)="rowDrag($event)"
-            [frozenColumns]="frozenColumns"
             >
+            <!-- allowRowDragAndDrop="true" -->
+            <!-- [allowMultiSorting]="allowMultiSorting" -->
             <e-columns>
                 <e-column
                   *ngFor="let column of columns"
@@ -46,6 +49,8 @@
                   [format]="column.dataType === dataType.DATE && 'dd/MM/yyyy'"
                   [isPrimaryKey]="column.filed === 'index'"
                   >
+<!--                  [customAttributes]="{ class: column.textWrap ? 'e-removewrap' : '' }"-->
+<!--                  882px 922-->
                 </e-column>
             </e-columns>
         </ejs-treegrid>

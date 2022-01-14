@@ -2,7 +2,6 @@ import {Component, HostListener, OnInit, QueryList, ViewChild, ViewChildren} fro
 import {QueryCellInfoEventArgs, SaveEventArgs} from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
-
 import {
   Column, ColumnChooserService,
   ContextMenuService,
@@ -15,6 +14,7 @@ import {
   SelectionService,
   SelectionSettingsModel,
   ToolbarService,
+  VirtualScrollService,
   TreeGridComponent as TreeGridComp,
 } from '@syncfusion/ej2-angular-treegrid';
 import { ColumnFormComponent } from '../forms/column-form/column-form.component';
@@ -29,11 +29,13 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+import { revertHighlightSearch } from '@syncfusion/ej2-angular-dropdowns';
+import { dataSource, virtualData } from '../../service/test';
 
 @Component({
-  selector: 'app-tree-grid',
-  templateUrl: './tree-grid.component.html',
-  styleUrls: ['./tree-grid.component.less'],
+  selector: 'app-frozen-tree-grid',
+  templateUrl: './frozen-tree-grid.component.html',
+  styleUrls: ['./frozen-tree-grid.component.less'],
   providers: [
     AppService,
     ToolbarService,
@@ -45,10 +47,11 @@ import {ClipboardService} from '../../service/clipboard.service';
     FreezeService,
     RowDDService,
     SelectionService,
-    ResizeService
+    ResizeService,
+    VirtualScrollService
   ]
 })
-export class TreeGridComponent implements OnInit {
+export class FrozenTreeGridComponent implements OnInit {
 
   @ViewChild('treegrid')
   public treegrid!: TreeGridComp;
@@ -102,10 +105,10 @@ export class TreeGridComponent implements OnInit {
       type: 'Multiple',
       mode: 'Row'
     };
-
     this.rowService.rows$.subscribe((rows) => {
       this.rows = rows;
 
+      this.treegrid.dataSource = this.rows;
       if (this.isLoading) {
         this.isLoading = false;
 
@@ -144,6 +147,11 @@ export class TreeGridComponent implements OnInit {
       mode: 'Dialog',
       showDeleteConfirmDialog: true
     };
+    console.log(this.rows);
+    
+    // this.treegrid.dataSource = this.rows;
+
+
     this.pageSettings = { pageCount: 5, pageSize: 90 };
   }
 
@@ -215,16 +223,28 @@ export class TreeGridComponent implements OnInit {
     });
     this.writeClipboardData(rowIndexes, 'copy');
   }
-  showRowMenuItems(args: any): void {
-    if (this.selectionOptions.type && this.selectionOptions.type === 'Single') {
-      args.element.querySelector('#cancelMultiSelect').style.display = 'none';
-      args.element.querySelector('#multiSelect').style.display = 'block';
-    } else if ( this.selectionOptions.type && this.selectionOptions.type === 'Multiple') {
-      args.element.querySelector('#cancelMultiSelect').style.display = 'block';
-      args.element.querySelector('#multiSelect').style.display = 'none';
+
+  public contextMenuBeforeOpen(args: any): void {
+    const isRow = !!args.rowInfo.row;
+    const isSystemField = this.isSystemColumn(args.column.field);
+    const display = isRow || isSystemField ? 'none' : 'block';
+
+    if (this.allowFiltering) {
+      args.element.querySelector('#unfilter').style.display = 'block';
+      args.element.querySelector('#filter').style.display = 'none';
+    } else if (!this.allowFiltering) {
+      args.element.querySelector('#unfilter').style.display = 'none';
+      args.element.querySelector('#filter').style.display = 'block';
     }
-  }
-  showColumnMenuItems(args: any): void {
+
+    if (this.allowMultiSorting) {
+      args.element.querySelector('#unmultiSort').style.display = 'block';
+      args.element.querySelector('#multiSort').style.display = 'none';
+    } else if (!this.allowMultiSorting) {
+      args.element.querySelector('#unmultiSort').style.display = 'none';
+      args.element.querySelector('#multiSort').style.display = 'block';
+    }
+
     const selectedColumnIndex = args.column.index + 1;
     if (this.frozenColumns !== selectedColumnIndex) {
       args.element.querySelector('#freeze').style.display = 'block';
@@ -234,31 +254,14 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#unfreeze').style.display = 'block';
     }
 
-    if (this.allowFiltering) {
-      args.element.querySelector('#unfilter').style.display = 'block';
-      args.element.querySelector('#filter').style.display = 'none';
-    } else if (!this.allowFiltering) {
-      args.element.querySelector('#unfilter').style.display = 'none';
-      args.element.querySelector('#filter').style.display = 'block';
+    if (this.selectionOptions.type && this.selectionOptions.type === 'Single') {
+      args.element.querySelector('#cancelMultiSelect').style.display = 'none';
+      args.element.querySelector('#multiSelect').style.display = 'block';
+    } else if ( this.selectionOptions.type && this.selectionOptions.type === 'Multiple') {
+      args.element.querySelector('#cancelMultiSelect').style.display = 'block';
+      args.element.querySelector('#multiSelect').style.display = 'none';
     }
-    
-    if (this.allowMultiSorting) {
-      args.element.querySelector('#unmultiSort').style.display = 'block';
-      args.element.querySelector('#multiSort').style.display = 'none';
-    } else if (!this.allowMultiSorting) {
-      args.element.querySelector('#unmultiSort').style.display = 'none';
-      args.element.querySelector('#multiSort').style.display = 'block';
-    }
-  }
-  public contextMenuBeforeOpen(args: any): void {
-    const isRow = !!args.rowInfo.row;
-    const isSystemField = this.isSystemColumn(args.column.field);
-    const display = isRow || isSystemField ? 'none' : 'block';
-    if(isRow) {
-      this.showRowMenuItems(args);
-    } else {
-      this.showColumnMenuItems(args);
-    }
+
     args.element.querySelector('#editCol').style.display = display;
     args.element.querySelector('#deleteCol').style.display = display;
   }

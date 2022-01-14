@@ -16,6 +16,7 @@ import { CheckBoxAllModule, RadioButtonModule } from '@syncfusion/ej2-angular-bu
 import { AppService } from './service/app.service';
 import { AppComponent } from './components/app/app.component';
 import { TreeGridComponent } from './components/tree-grid/tree-grid.component';
+import { FrozenTreeGridComponent } from './components/frozen-tree-grid/frozen-tree-grid.component';
 import { ColumnFormComponent } from './components/forms/column-form/column-form.component';
 import { ErrorMessageComponent } from './components/forms/error-message/error-message.component';
 import { DataInputComponent } from './components/forms/data-input/data-input.component';
@@ -23,6 +24,7 @@ import { ColumnService } from './service/column.service';
 import { RowFormComponent } from './components/forms/row-form/row-form.component';
 import {RowService} from './service/row.service';
 import {WindowService} from './service/window.service';
+// import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import {WindowService} from './service/window.service';
     ColumnFormComponent,
     ErrorMessageComponent,
     DataInputComponent,
-    RowFormComponent
+    RowFormComponent,
+    FrozenTreeGridComponent
   ],
   imports: [
     BrowserModule,
@@ -47,7 +50,8 @@ import {WindowService} from './service/window.service';
     ContextMenuModule,
     CheckBoxAllModule,
     RadioButtonModule,
-    DropDownListAllModule
+    DropDownListAllModule,
+    // ScrollingModule
   ],
   providers: [
     AppService,

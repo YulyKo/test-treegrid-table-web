@@ -87,4 +87,121 @@ export class RowService {
       this.removeRow(row);
     });
   }
+
+  iterateRows(rows, callback) {
+    function iterate(items) {
+      for (const row of items) {
+        callback(row);
+        this.iterate(row.subrows);
+      }
+    }
+  
+    iterate(rows);
+  }
+  
+  getFieldDataArray(rows): any[] {
+  
+    let filedsValues: string [];
+    this.iterateRows(rows, row => {
+      if (row.subtasks.length !== 0) {
+        filedsValues['subrows'].push(row);
+      } else {
+        filedsValues.push(row);
+      }
+    });
+    return filedsValues;
+  }
+
+  // getVirtualData(): any {
+  //   let parent: number = -1;
+  //   let crew: string = 'Crew';
+  //   let parentId: number ;
+  //   let columnsFieldNames = Object.keys(this.rows[0]);
+  //   let data = [];
+  //   columnsFieldNames.forEach(field => {
+  //     data.push({})
+  //   });
+  //   let allRows: IRow[] = this.getFieldDataArray(this.rows); // замісь name  назва філда колонки
+  //   allRows.forEach(row => {
+  //     if (row.subrows.length > 0) {
+  //       parent = row.index;
+  //     }
+
+  //   })
+  //   for (let i: number = 0; i < allRows.length; i++) {        
+  //       if (i % 5 === 0) {
+  //           parent = i;
+  //       }
+  //       if (i % 5 !== 0) {
+  //           let num:number = isNaN((virtualData.length % parent)- 1) ?  0 : (virtualData.length % parent) - 1;
+  //           virtualData[num][crew].push({
+  //               'TaskID': i + 1,
+  //               'FIELD1': names[Math.floor(Math.random() * names.length)],
+  //               'FIELD2': 1967 + (i % 10),
+  //               'FIELD3': Math.floor(Math.random() * 200),
+  //               'FIELD4': Math.floor(Math.random() * 100),
+  //               'FIELD5': Math.floor(Math.random() * 2000),
+  //               'FIELD6': Math.floor(Math.random() * 1000),
+  //               'FIELD7': Math.floor(Math.random() * 100),
+  //               'FIELD8': Math.floor(Math.random() * 10),
+  //               'FIELD9': Math.floor(Math.random() * 10),
+  //               'FIELD10': Math.floor(Math.random() * 100),
+  //               'FIELD11': Math.floor(Math.random() * 100),
+  //               'FIELD12': Math.floor(Math.random() * 1000),
+  //               'FIELD13': Math.floor(Math.random() * 10),
+  //               'FIELD14': Math.floor(Math.random() * 10),
+  //               'FIELD15': Math.floor(Math.random() * 1000),
+  //               'FIELD16': Math.floor(Math.random() * 200),
+  //               'FIELD17': Math.floor(Math.random() * 300),
+  //               'FIELD18': Math.floor(Math.random() * 400),
+  //               'FIELD19': Math.floor(Math.random() * 500),
+  //               'FIELD20': Math.floor(Math.random() * 700),
+  //               'FIELD21': Math.floor(Math.random() * 800),
+  //               'FIELD22': Math.floor(Math.random() * 1000),
+  //               'FIELD23': Math.floor(Math.random() * 2000),
+  //               'FIELD24': Math.floor(Math.random() * 150),
+  //               'FIELD25': Math.floor(Math.random() * 1000),
+  //               'FIELD26': Math.floor(Math.random() * 100),
+  //               'FIELD27': Math.floor(Math.random() * 400),
+  //               'FIELD28': Math.floor(Math.random() * 600),
+  //               'FIELD29': Math.floor(Math.random() * 500),
+  //               'FIELD30': Math.floor(Math.random() * 300),
+  //           });
+  //       } else {
+  //           virtualData.push({
+  //               'TaskID': i + 1,
+  //               'Crew': [],
+  //               'FIELD1': names[Math.floor(Math.random() * names.length)],
+  //               'FIELD2': 1967 + (i % 10),
+  //               'FIELD3': Math.floor(Math.random() * 200),
+  //               'FIELD4': Math.floor(Math.random() * 100),
+  //               'FIELD5': Math.floor(Math.random() * 2000),
+  //               'FIELD6': Math.floor(Math.random() * 1000),
+  //               'FIELD7': Math.floor(Math.random() * 100),
+  //               'FIELD8': Math.floor(Math.random() * 10),
+  //               'FIELD9': Math.floor(Math.random() * 10),
+  //               'FIELD10': Math.floor(Math.random() * 100),
+  //               'FIELD11': Math.floor(Math.random() * 100),
+  //               'FIELD12': Math.floor(Math.random() * 1000),
+  //               'FIELD13': Math.floor(Math.random() * 10),
+  //               'FIELD14': Math.floor(Math.random() * 10),
+  //               'FIELD15': Math.floor(Math.random() * 1000),
+  //               'FIELD16': Math.floor(Math.random() * 200),
+  //               'FIELD17': Math.floor(Math.random() * 300),
+  //               'FIELD18': Math.floor(Math.random() * 400),
+  //               'FIELD19': Math.floor(Math.random() * 500),
+  //               'FIELD20': Math.floor(Math.random() * 700),
+  //               'FIELD21': Math.floor(Math.random() * 800),
+  //               'FIELD22': Math.floor(Math.random() * 1000),
+  //               'FIELD23': Math.floor(Math.random() * 2000),
+  //               'FIELD24': Math.floor(Math.random() * 150),
+  //               'FIELD25': Math.floor(Math.random() * 1000),
+  //               'FIELD26': Math.floor(Math.random() * 100),
+  //               'FIELD27': Math.floor(Math.random() * 400),
+  //               'FIELD28': Math.floor(Math.random() * 600),
+  //               'FIELD29': Math.floor(Math.random() * 500),
+  //               'FIELD30': Math.floor(Math.random() * 300),
+  //           });
+  //       }
+  // }
 }
