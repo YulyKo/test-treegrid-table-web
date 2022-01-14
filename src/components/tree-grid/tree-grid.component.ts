@@ -173,17 +173,17 @@ export class TreeGridComponent implements OnInit {
     });
   }
 
-  writeClipboardData(rowIndexes: number[], goal: 'copy' | 'cut', placeForLocalSave: any[]): void {
-    if (placeForLocalSave.length > 0) {
+  writeClipboardData(rowIndexes: number[], goal: 'copy' | 'cut'): void {
+    if (this.copiedRows.length > 0) {
       this.changeChildNodeStyles('');
-      placeForLocalSave = [];
+      this.copiedRows = [];
     }
 
     rowIndexes.forEach(index => {
       // when copy index allways more than 1
       const rowIndex = goal === 'copy' ? index - 1 : index;
       const rowElement = this.treegrid.getRowByIndex(rowIndex) as HTMLElement;
-      placeForLocalSave.push(rowElement);
+      this.copiedRows.push(rowElement);
     });
 
     this.treegrid.copyHierarchyMode = 'None';
@@ -199,7 +199,7 @@ export class TreeGridComponent implements OnInit {
       this.treegrid.getSelectedRowIndexes().forEach(item => {
         rowIndexes.push(item);
       });
-      this.writeClipboardData(rowIndexes, 'cut', this.cutedRows);
+      this.writeClipboardData(rowIndexes, 'cut');
     }
   }
 
@@ -214,7 +214,7 @@ export class TreeGridComponent implements OnInit {
         rowIndexes.push(id);
       }
     });
-    this.writeClipboardData(rowIndexes, 'copy', this.copiedRows);
+    this.writeClipboardData(rowIndexes, 'copy');
   }
 
   public contextMenuBeforeOpen(args: any): void {

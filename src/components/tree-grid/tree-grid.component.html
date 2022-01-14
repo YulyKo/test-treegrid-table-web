@@ -12,12 +12,13 @@
             [frozenColumns]="frozenColumns"
             allowTextWrap='true'
             allowSelection="true"
-            allowReordering="true"
+            allowReordering="true" 
             [allowSorting]="allowMultiSorting"
             [allowResizing]='true'
             [allowRowDragAndDrop]="true"
             [allowFiltering]='allowFiltering'
-            enableInfiniteScrolling="true"
+            [enableInfiniteScrolling]="frozenColumns === 0"
+            [enableVirtualization]="frozenColumns !== 0"
             [showColumnChooser]="true"
             [pageSettings]="pageSettings"
             [editSettings]="editSettings"
