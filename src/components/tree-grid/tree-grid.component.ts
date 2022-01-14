@@ -223,6 +223,13 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#cancelMultiSelect').style.display = 'block';
       args.element.querySelector('#multiSelect').style.display = 'none';
     }
+
+    args.element.querySelector('#unfreeze').style.display = 'none';
+    args.element.querySelector('#freeze').style.display = 'none';
+    args.element.querySelector('#filter').style.display = 'none';
+    args.element.querySelector('#unfilter').style.display = 'none';
+    args.element.querySelector('#multiSort').style.display = 'none';
+    args.element.querySelector('#unmultiSort').style.display = 'none';
   }
   showColumnMenuItems(args: any): void {
     const selectedColumnIndex = args.column.index + 1;
@@ -249,6 +256,9 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#unmultiSort').style.display = 'none';
       args.element.querySelector('#multiSort').style.display = 'block';
     }
+
+    args.element.querySelector('#multiSelect').style.display = 'none';
+    args.element.querySelector('#cancelMultiSelect').style.display = 'none';
   }
   public contextMenuBeforeOpen(args: any): void {
     const isRow = !!args.rowInfo.row;
