@@ -129,7 +129,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       backgroundColor: [formData.backgroundColor],
       alignment: [formData.alignment],
       textWrap: [formData.textWrap],
-      dropdownValues: new FormArray( [])
+      dropdownValues: new FormArray([])
     });
     // this.clearDropDownValues();
     for (const dropdownValue of formData.dropdownValues) {
@@ -201,7 +201,18 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  setCorrectDateValue(): void {
+    if (this.form.value.dataType === DataType.DATE && this.form.value.defaultValue === null) {
+      const realDefultValueItem = document.getElementById('datepicker').firstChild.firstChild as HTMLInputElement;
+      const realDefultValueDate = realDefultValueItem.value;
+      if (realDefultValueDate !== null) {
+        this.form.value.defaultValue = realDefultValueDate;
+      }
+    }
+  }
+
   saveData(): void {
+    this.setCorrectDateValue();
     switch (this.requestMode) {
       case 'create':
         this.columnService.createColumn({

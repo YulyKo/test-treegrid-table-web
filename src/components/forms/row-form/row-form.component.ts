@@ -50,7 +50,7 @@ export class RowFormComponent {
 
   private formatValue(column: IColumn, value: CellValue): CellValue {
     if (column.dataType === DataType.DATE) {
-      return new Date(value as number);
+      return new Date(value as any);
     }
     return value;
   }
