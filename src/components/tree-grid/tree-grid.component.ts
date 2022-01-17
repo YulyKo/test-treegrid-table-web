@@ -16,6 +16,7 @@ import {
   SelectionSettingsModel,
   ToolbarService,
   TreeGridComponent as TreeGridComp,
+  VirtualScrollService,
 } from '@syncfusion/ej2-angular-treegrid';
 import { ColumnFormComponent } from '../forms/column-form/column-form.component';
 import {IColumn} from '../../models/Column.interface';
@@ -29,6 +30,7 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+import { revertHighlightSearch } from '@syncfusion/ej2-angular-dropdowns';
 
 @Component({
   selector: 'app-tree-grid',
@@ -45,7 +47,8 @@ import {ClipboardService} from '../../service/clipboard.service';
     FreezeService,
     RowDDService,
     SelectionService,
-    ResizeService
+    ResizeService,
+    VirtualScrollService
   ]
 })
 export class TreeGridComponent implements OnInit {
@@ -87,6 +90,7 @@ export class TreeGridComponent implements OnInit {
   private cutedRows: any; // Element | HTMLElement;
   listHeaders = [];
 
+  public enableVirtualization = true;
   public allowFiltering = true;
   filterOptions: FilterSettingsModel;
   public allowMultiSorting = false;
@@ -356,12 +360,14 @@ export class TreeGridComponent implements OnInit {
       case 'freeze':
         const index = args.column.index + 1;
         this.frozenColumns = index;
+        this.enableVirtualization = false;
         this.rowService.getAllRows().subscribe((rows: any) => {
           this.rows = rows;
         });
         break;
       case 'unfreeze':
         this.frozenColumns = 0;
+        this.enableVirtualization = true;
         break;
       case 'multiSort':
         this.allowMultiSorting = true;
