@@ -17,6 +17,7 @@
             [allowRowDragAndDrop]="true"
             [allowFiltering]="allowFiltering"
             [enableVirtualization]="enableVirtualization"
+            [enableInfiniteScrolling]="enableInfiniteScrolling"
             [showColumnChooser]="true"
             [pageSettings]="pageSettings"
             [editSettings]="editSettings"
@@ -34,7 +35,6 @@
             (rowDrag)="rowDrag($event)"
             [frozenColumns]="frozenColumns"
             >
-            <!-- [enableInfiniteScrolling]="true" -->
             <e-columns>
                 <e-column
                   *ngFor="let column of columns"

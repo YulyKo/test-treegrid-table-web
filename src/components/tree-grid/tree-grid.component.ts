@@ -30,7 +30,6 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
-import { revertHighlightSearch } from '@syncfusion/ej2-angular-dropdowns';
 
 @Component({
   selector: 'app-tree-grid',
@@ -91,6 +90,7 @@ export class TreeGridComponent implements OnInit {
   listHeaders = [];
 
   public enableVirtualization = true;
+  public enableInfiniteScrolling = !this.enableVirtualization;
   public allowFiltering = true;
   filterOptions: FilterSettingsModel;
   public allowMultiSorting = false;
@@ -252,7 +252,7 @@ export class TreeGridComponent implements OnInit {
       args.element.querySelector('#unfilter').style.display = 'none';
       args.element.querySelector('#filter').style.display = 'block';
     }
-    
+
     if (this.allowMultiSorting) {
       args.element.querySelector('#unmultiSort').style.display = 'block';
       args.element.querySelector('#multiSort').style.display = 'none';
@@ -268,7 +268,7 @@ export class TreeGridComponent implements OnInit {
     const isRow = !!args.rowInfo.row;
     const isSystemField = this.isSystemColumn(args.column.field);
     const display = isRow || isSystemField ? 'none' : 'block';
-    if(isRow) {
+    if (isRow) {
       this.showRowMenuItems(args);
     } else {
       this.showColumnMenuItems(args);
