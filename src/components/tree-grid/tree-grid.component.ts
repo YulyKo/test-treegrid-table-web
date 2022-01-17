@@ -361,13 +361,12 @@ export class TreeGridComponent implements OnInit {
         const index = args.column.index + 1;
         this.frozenColumns = index;
         this.enableVirtualization = false;
-        this.rowService.getAllRows().subscribe((rows: any) => {
-          this.rows = rows;
-        });
+        this.enableInfiniteScrolling = true;
         break;
       case 'unfreeze':
         this.frozenColumns = 0;
         this.enableVirtualization = true;
+        this.enableInfiniteScrolling = false;
         break;
       case 'multiSort':
         this.allowMultiSorting = true;
