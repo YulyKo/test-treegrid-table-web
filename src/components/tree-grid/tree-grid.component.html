@@ -1,14 +1,16 @@
 <div class="control-section">
-    <section #container>
+    <section #container >
+        <!-- windowWidth$ | async -->
         <ejs-treegrid
             *ngIf="!isLoading"
             #treegrid
+            id='treegrid'
             [dataSource]="rows"
             childMapping="subrows"
-            [treeColumnIndex]="1"
+            [treeColumnIndex]="0"
             copy="true"
             [height]="windowHeight$ | async"
-            [width]="windowWidth$ | async"
+            width='100%'
             allowTextWrap="true"
             allowSelection="true"
             allowReordering="true"
@@ -24,7 +26,6 @@
             [selectionSettings]="selectionOptions"
             [filterSettings]='filterOptions'
             (queryCellInfo)="customizeSelf($event)"
-            (beforeCopy)="beforeCopy($event)"
             [contextMenuItems]="contextMenuItems"
             (contextMenuClick)="contextMenuClick($event)"
             (contextMenuOpen)="contextMenuBeforeOpen($event)"
@@ -34,6 +35,7 @@
             (rowDragStart)="rowDragStart($event)"
             (rowDrag)="rowDrag($event)"
             [frozenColumns]="frozenColumns"
+            (scroll)="onScroll($event)"
             >
             <e-columns>
                 <e-column
