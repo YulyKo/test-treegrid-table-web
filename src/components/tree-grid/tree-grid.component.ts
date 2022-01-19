@@ -162,6 +162,7 @@ export class TreeGridComponent implements OnInit {
         tbody.childNodes.forEach(rowChildNode => {
           console.log(this.copiedRowIndexes);
           const rowIndex = +rowChildNode.getAttribute('aria-rowindex') as number;
+          this.changeChildNodeStyles(rowChildNode, '');
           if (this.copiedRowIndexes.length > 0) {
             this.copiedRowIndexes.forEach(copiedRowIndex => {
               if (copiedRowIndex === rowIndex) {
