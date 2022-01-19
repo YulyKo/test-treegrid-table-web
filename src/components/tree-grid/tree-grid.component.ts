@@ -171,7 +171,6 @@ export class TreeGridComponent implements OnInit {
             });
           }
         });
-        console.log('fjhdfjhdf');
       });
     }, 1500);
   }
@@ -344,7 +343,9 @@ export class TreeGridComponent implements OnInit {
         if (this.cutedRows) {
           const path = this.rowService.getRowPath(this.cutedRows);
           this.rowService.removeRow(path);
-          this.cutedRows = null;
+          this.cutedRows = [];
+        } else {
+          this.copiedRowIndexes = [];
         }
         break;
       case 'rowPasteChild':
@@ -352,7 +353,9 @@ export class TreeGridComponent implements OnInit {
         if (this.cutedRows) {
           const path = this.rowService.getRowPath(this.cutedRows);
           this.rowService.removeRow(path);
-          this.cutedRows = null;
+          this.cutedRows = [];
+        } else {
+          this.copiedRowIndexes = [];
         }
         break;
       case 'multiSelect':
