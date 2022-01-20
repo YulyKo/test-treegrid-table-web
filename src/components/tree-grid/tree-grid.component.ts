@@ -219,10 +219,6 @@ export class TreeGridComponent implements OnInit {
       if (this.isDoSelectionRows) {
         this.isDoSelectionRows = false;
       }
-      // check is empty copy
-      // if copy !empty => simple paste()
-      // if cut !empty => paste() & after delete rows
-      // this.clipboardService.paste('next', this.rowService.getRowPath(args.rowInfo.rowData));
     }
   }
 
@@ -357,7 +353,7 @@ export class TreeGridComponent implements OnInit {
         this.showEditRowDialog(args);
         break;
       case 'delRow':
-        this.deleteRow(args.rowInfo.rowData);
+        this.deleteRows();
         break;
       case 'rowCut':
         this.treegrid.copy();
@@ -431,9 +427,17 @@ export class TreeGridComponent implements OnInit {
     });
   }
 
-  deleteRow(row: IRow): void {
-    this.showConfirm('Delete Row', `Are you sure that you want to delete row "${row.index}"`, () => {
-      this.rowService.removeRow(this.rowService.getRowPath(row));
+  deleteRows(): void {
+    const paths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
+    let indexes = '';
+    this.treegrid.getSelectedRowIndexes().forEach(index => {
+      indexes += ' ' + (index + 1);
+    });
+
+    this.showConfirm('Delete Row', `Are you sure that you want to delete row(s) with index(es): "${indexes}"`, () => {
+      paths.forEach(clipboardServicePath => {
+        this.rowService.removeRow(clipboardServicePath);
+      });
     });
   }
 
