@@ -29,6 +29,8 @@ export class ClipboardService {
 
   private copy(): void {
     this.copiedPaths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
+    console.log(this.copiedPaths);
+
     // this.treegrid.clearSelection();
   }
 
