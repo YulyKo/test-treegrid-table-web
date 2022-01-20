@@ -213,7 +213,7 @@ export class TreeGridComponent implements OnInit {
     // Ctrl + V
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 86) {
       if (this.isCutted) {
-        this.rowService.removeRow();
+        this.cutrows();
         this.isCutted = false;
       }
       if (this.isDoSelectionRows) {
@@ -248,10 +248,7 @@ export class TreeGridComponent implements OnInit {
     this.treegrid.clearSelection();
   }
 
-  pasteRows(position: 'next' | 'child', rowData: IRow): void {
-    const path = this.rowService.getRowPath(rowData);
-    this.clipboardService.paste(position, path);
-
+  cutrows(): void {
     if (this.isCutted) {
       const paths = this.clipboardService.copiedPaths;
       paths.forEach(clipboardServicePath => {
@@ -259,6 +256,13 @@ export class TreeGridComponent implements OnInit {
       });
       this.isCutted = false;
     }
+  }
+
+  pasteRows(position: 'next' | 'child', rowData: IRow): void {
+    const path = this.rowService.getRowPath(rowData);
+    this.clipboardService.paste(position, path);
+
+    this.cutrows();
 
     this.isDoSelectionRows = false;
   }
