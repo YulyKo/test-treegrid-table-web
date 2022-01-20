@@ -6,7 +6,7 @@ import IRow from '../models/Row.interface';
 @Injectable({ providedIn: 'root' })
 export class ClipboardService {
   private treegrid: TreeGridComponent;
-  private copiedPaths: Array<string[]>;
+  public copiedPaths: Array<string[]>;
   private lastSelectedPath: string[];
 
   constructor(private rowService: RowService) {}
@@ -29,7 +29,7 @@ export class ClipboardService {
 
   private copy(): void {
     this.copiedPaths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
-    console.log(this.copiedPaths);
+    console.log(this.copiedPaths, this.treegrid.getSelectedRecords());
 
     // this.treegrid.clearSelection();
   }

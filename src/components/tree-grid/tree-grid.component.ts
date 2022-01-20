@@ -156,25 +156,23 @@ export class TreeGridComponent implements OnInit {
 
       const child = parent.firstChild;
 
-      if (this.isDoSelectionRows) {
-        child.addEventListener('scroll', (event: any) => {
-          const childScrollElement = event.path[1];
-          const tbody = childScrollElement.getElementsByTagName('tbody')[0];
-          tbody.childNodes.forEach(rowChildNode => {
-            const rowIndex = +rowChildNode.getAttribute('aria-rowindex') as number;
-            this.changeChildNodeStyles(rowChildNode, '');
-            if (this.copiedRowIndexes.length > 0) {
-              this.copiedRowIndexes.forEach(copiedRowIndex => {
-                if (copiedRowIndex === rowIndex) {
-                  this.changeChildNodeStyles(rowChildNode, this.copyCutRowCssClass);
-                }
-              });
-            }
-          });
+      child.addEventListener('scroll', (event: any) => {
+        if (this.isDoSelectionRows) {
+            const childScrollElement = event.path[1];
+            const tbody = childScrollElement.getElementsByTagName('tbody')[0];
+            tbody.childNodes.forEach(rowChildNode => {
+              const rowIndex = +rowChildNode.getAttribute('aria-rowindex') as number;
+              this.changeChildNodeStyles(rowChildNode, '');
+              if (this.copiedRowIndexes.length > 0) {
+                this.copiedRowIndexes.forEach(copiedRowIndex => {
+                  if (copiedRowIndex === rowIndex) {
+                    this.changeChildNodeStyles(rowChildNode, this.copyCutRowCssClass);
+                  }
+                });
+              }
+            });
+          }
         });
-      } else {
-        child.removeEventListener('scroll', () => {});
-      }
     }, 1500);
   }
 
@@ -203,6 +201,7 @@ export class TreeGridComponent implements OnInit {
     // Ctrl + X
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 88) {
       this.isDoSelectionRows = true;
+      this.treegrid.copy();
       this.beforeCopy();
       this.isCutted = true;
     }
@@ -214,6 +213,7 @@ export class TreeGridComponent implements OnInit {
     // Ctrl + V
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 86) {
       if (this.isCutted) {
+        this.rowService.removeRow();
         this.isCutted = false;
       }
       if (this.isDoSelectionRows) {
@@ -253,6 +253,10 @@ export class TreeGridComponent implements OnInit {
     this.clipboardService.paste(position, path);
 
     if (this.isCutted) {
+      const paths = this.clipboardService.copiedPaths;
+      paths.forEach(clipboardServicePath => {
+        this.rowService.removeRow(clipboardServicePath);
+      });
       this.isCutted = false;
     }
 
@@ -352,6 +356,7 @@ export class TreeGridComponent implements OnInit {
         this.deleteRow(args.rowInfo.rowData);
         break;
       case 'rowCut':
+        this.treegrid.copy();
         this.beforeCopy();
         this.isCutted = true;
         break;
