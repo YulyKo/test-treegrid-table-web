@@ -7,7 +7,6 @@ import {map} from 'rxjs/operators';
 import {ColumnService} from './column.service';
 import {DataType} from '../models/enums/DataType.enum';
 import {SocketService} from './socket.service';
-import { RouterEvent } from '@angular/router';
 
 interface ICreatePayload {
   rowData: IRow;
@@ -82,11 +81,9 @@ export class RowService {
     this.http.post<ICreatePayload>(`${this.API_URL}/paste`, { fromPaths, rowStatus, toPath }).subscribe();
   }
 
-  removeMany(rows: IRow[]): void {
+  removeMany(rows: any[]): void {
     rows.forEach(row => {
-      const path = this.getRowPath(row);
-      this.removeRow(path);
-      this.getAllRows();
+      this.removeRow(row);
     });
   }
 
