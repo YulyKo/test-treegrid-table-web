@@ -8,6 +8,8 @@ export class ClipboardService {
   private treegrid: TreeGridComponent;
   public copiedPaths: Array<string[]>;
   private lastSelectedPath: string[];
+  private cuttedRows: IRow[] = [];
+  private cutted = false;
 
   constructor(private rowService: RowService) {}
 
@@ -29,12 +31,53 @@ export class ClipboardService {
 
   private copy(): void {
     this.copiedPaths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
-    console.log(this.copiedPaths, this.treegrid.getSelectedRecords());
-
     // this.treegrid.clearSelection();
   }
 
+  setCuttedtRows(cuttedRows): void {
+    this.cuttedRows = cuttedRows;
+  }
+
+  getCuttedRows(): IRow[] {
+    return this.cuttedRows;
+  }
+
+  setIsCutted(cutted): void {
+    this.setIsCutted = cutted;
+  }
+
+  getIsCutted(): boolean {
+    return this.cutted;
+  }
+
+  cutrows(): void {
+    const paths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
+    let indexes = '';
+    this.treegrid.getSelectedRowIndexes().forEach(index => {
+      indexes += ' ' + (index + 1);
+    });
+
+    paths.forEach(clipboardServicePath => {
+      this.rowService.removeRow(clipboardServicePath);
+    });
+    this.cutted = true;
+  }
+
+  pasteCuttedRows(rowPath, status): void {
+      this.cuttedRows.forEach(cuttedRow => {
+      this.rowService.createRow(status, cuttedRow, rowPath);
+    });
+  }
+
   paste(status: string, rowPath: string[]): void {
-    this.rowService.paste(status, rowPath, this.copiedPaths);
+    if (this.cuttedRows.length > 0) {
+      if (this.cutted) {
+        this.cutrows();
+      }
+      this.pasteCuttedRows(rowPath, status);
+      // this.rowService.cutMany(this.cuttedRows, this.copiedPaths, , )
+    } else {
+      this.rowService.paste(status, rowPath, this.copiedPaths);
+    }
   }
 }

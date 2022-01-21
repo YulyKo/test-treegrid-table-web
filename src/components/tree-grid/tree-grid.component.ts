@@ -176,12 +176,6 @@ export class TreeGridComponent implements OnInit {
     }, 1500);
   }
 
-  actionBegin(args: SaveEventArgs): void {
-    if (args.requestType === 'save') {
-      console.log('actionBegin', args.requestType);
-    }
-  }
-
   changeChildNodeStyles(copiedRow: any, newClasses: string): void {
     for (const childNode of copiedRow.childNodes) {
       if (childNode) {
@@ -200,29 +194,59 @@ export class TreeGridComponent implements OnInit {
   onKeyPress($event: KeyboardEvent): void {
     // Ctrl + X
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 88) {
-      this.isDoSelectionRows = true;
-      this.treegrid.copy();
-      this.beforeCopy();
-      this.isCutted = true;
+      this.doCut();
     }
     // Ctrl + c
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 67) {
-      this.isDoSelectionRows = true;
-      this.beforeCopy();
+      this.doCopy();
     }
     // Ctrl + V
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 86) {
-      if (this.isCutted) {
-        this.cutrows();
-        this.isCutted = false;
-      }
-      if (this.isDoSelectionRows) {
-        this.isDoSelectionRows = false;
-      }
+      this.isDoSelectionRows = false;
+    }
+  }
+  doCopy(): void {
+    this.isDoSelectionRows = true;
+    this.isCutted = false;
+    this.clipboardService.setCuttedtRows([]);
+    this.afterCopy();
+    this.clipboardService.setIsCutted(false);
+  }
+  doCut(): void {
+    this.isDoSelectionRows = true;
+    this.isCutted = true;
+    this.treegrid.copy();
+    this.afterCopy();
+    this.clipboardService.setIsCutted(true);
+  }
+
+  beforeTreegridCopy(args): void {
+    if (this.isCutted) {
+      const rowIndexes = [];
+      const zeroRowIndex = +args.data.split('\t')[0].split('\n').at(-1);
+      rowIndexes.push(zeroRowIndex);
+
+      args.data.split('\t').forEach(item => {
+        if (item.includes('\n')) {
+          const id = +item.replace('\n', '');
+          rowIndexes.push(id);
+        }
+      });
+      const cutedRows = [];
+      const rowsData = this.treegrid.getSelectedRecords();
+      rowIndexes.forEach(rowIndex => {
+        rowsData.forEach((rowData: any) => {
+          if (rowIndex === rowData.taskData.index) {
+            cutedRows.push(rowData.taskData);
+          }
+        });
+      });
+      this.clipboardService.setCuttedtRows(cutedRows);
+      // save row data to this || save copied data rows to clipboard service row data
     }
   }
 
-  beforeCopy(): void {
+  afterCopy(): void {
     // clear old copied rows
     this.copiedRowIndexes.forEach(copiedRowIndex => {
       const rowHTML = this.treegrid.getRowByIndex(copiedRowIndex) as any;
@@ -244,21 +268,9 @@ export class TreeGridComponent implements OnInit {
     this.treegrid.clearSelection();
   }
 
-  cutrows(): void {
-    if (this.isCutted) {
-      const paths = this.clipboardService.copiedPaths;
-      paths.forEach(clipboardServicePath => {
-        this.rowService.removeRow(clipboardServicePath);
-      });
-      this.isCutted = false;
-    }
-  }
-
   pasteRows(position: 'next' | 'child', rowData: IRow): void {
     const path = this.rowService.getRowPath(rowData);
     this.clipboardService.paste(position, path);
-
-    this.cutrows();
 
     this.isDoSelectionRows = false;
   }
@@ -356,13 +368,10 @@ export class TreeGridComponent implements OnInit {
         this.deleteRows();
         break;
       case 'rowCut':
-        this.treegrid.copy();
-        this.beforeCopy();
-        this.isCutted = true;
+        this.doCut();
         break;
       case 'copyRows':
-        this.beforeCopy();
-        this.treegrid.copy();
+        this.doCopy();
         break;
       case 'rowPasteNext':
         this.pasteRows('next', row);
