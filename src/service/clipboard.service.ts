@@ -71,7 +71,11 @@ export class ClipboardService {
 
   paste(status: string, rowPath: string[]): void {
     if (this.cuttedRows.length > 0) {
-      if (this.cutted) {
+      console.log(this.cutted);
+      
+      if (this.cutted === false) {
+        console.log('in cutted');
+        
         this.cutrows();
       }
       this.pasteCuttedRows(rowPath, status);
