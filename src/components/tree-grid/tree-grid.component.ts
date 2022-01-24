@@ -210,6 +210,7 @@ export class TreeGridComponent implements OnInit {
     this.isDoSelectionRows = true;
     this.isCutted = false;
     this.afterCopy();
+    // this.clipboardService.setCuttedtRows([]);
   }
   doCut(): void {
     this.isDoSelectionRows = true;
@@ -370,6 +371,7 @@ export class TreeGridComponent implements OnInit {
         break;
       case 'copyRows':
         this.doCopy();
+        this.clipboardService.setCuttedtRows([]);
         break;
       case 'rowPasteNext':
         this.pasteRows('next', row);
