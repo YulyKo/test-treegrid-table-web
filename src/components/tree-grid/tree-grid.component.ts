@@ -199,6 +199,7 @@ export class TreeGridComponent implements OnInit {
     // Ctrl + c
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 67) {
       this.doCopy();
+      this.clipboardService.setCuttedtRows([]);
     }
     // Ctrl + V
     if (($event.ctrlKey || $event.metaKey) && $event.keyCode === 86) {
@@ -208,16 +209,13 @@ export class TreeGridComponent implements OnInit {
   doCopy(): void {
     this.isDoSelectionRows = true;
     this.isCutted = false;
-    this.clipboardService.setCuttedtRows([]);
     this.afterCopy();
-    this.clipboardService.setIsCutted(false);
   }
   doCut(): void {
     this.isDoSelectionRows = true;
     this.isCutted = true;
     this.treegrid.copy();
     this.afterCopy();
-    this.clipboardService.setIsCutted(true);
   }
 
   beforeTreegridCopy(args): void {
