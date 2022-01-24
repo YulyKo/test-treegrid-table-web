@@ -30,9 +30,7 @@ export class ClipboardService {
   }
 
   private copy(): void {
-    this.copiedPaths = this.treegrid.getSelectedRecords().map((row: IRow) => {
-      return this.rowService.getRowPath(row);
-    });
+    this.copiedPaths = this.treegrid.getSelectedRecords().map((row: IRow) => this.rowService.getRowPath(row));
     // this.treegrid.clearSelection();
   }
 
