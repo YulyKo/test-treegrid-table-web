@@ -12,7 +12,7 @@
     *ngSwitchCase="dataType.BOOLEAN"
   ></ejs-dropdownlist>
 
-  <div *ngSwitchCase="dataType.DROPDOWN">
+  <!-- <div>
     <ejs-radiobutton
       style="display: block; margin-top: 10px"
       *ngFor="let item of dropdownDataSource"
@@ -21,7 +21,16 @@
       [value]="item.id.toString()"
       [formControl]="valueControl"
     ></ejs-radiobutton>
-  </div>
+  </div> -->
+
+  <ejs-dropdownlist
+    #dropDownComponent
+    [dataSource]="dropdownDataSource"
+    [fields]="fields"
+    name="defaultDropdownValue"
+    [formControl]="valueControl"
+    *ngSwitchCase="dataType.DROPDOWN"
+  ></ejs-dropdownlist>
 
   <ejs-datepicker
     *ngSwitchCase="dataType.DATE"
