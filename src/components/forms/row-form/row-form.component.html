@@ -15,6 +15,7 @@
                 <app-data-input
                   style="padding-top: 20px; display: block;"
                   [id]="column.field.toString()"
+                  formType='row'
                   [type]="column.dataType"
                   [formControlName]="column.field.toString()"
                   [dropdownDataSource]="column.dropdownValues"

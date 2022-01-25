@@ -1,7 +1,7 @@
 <div class="control-section">
   <div class="col-lg-12">
     <div class="control_wrapper" id="control_wrapper" style="margin: 25px auto;">
-      <ejs-dialog class="column-dialog" id="reactDialog" #Dialog width= '450px'
+      <ejs-dialog class="column-dialog" id="reactDialog" #Dialog height='70%' width= '450px'
                   [visible]="isFormVisible"
                   [showCloseIcon]='false' target='.control-section'>
         <form id="reactive" [formGroup]="form">
@@ -22,7 +22,6 @@
                 style="margin-top: 20px;"
                 #dropDownComponent id="dataType"
                 [dataSource]="dataTypeValues"
-                [fields]="fields"
                 name="dataType"
                 formControlName="dataType"
               ></ejs-dropdownlist>
@@ -47,6 +46,7 @@
             <div class="e-float-input">
               <app-data-input  style="padding-top: 20px; display: block;"
                                id="defaultValue" [type]="getFieldTypeData()"
+                               formType='column'
                                formControlName="defaultValue"
                                [dropdownDataSource]="dropdownValuesSubject | async"
               ></app-data-input>
@@ -103,7 +103,7 @@
 
           <div class="form-group" style="padding-top: 11px;">
             <div class="e-float-input">
-              <ejs-dropdownlist #dropDownComponent [dataSource]="alignmentValues" [fields]="fields" name="alignment" formControlName="alignment" placeholder="Alignment"></ejs-dropdownlist>
+              <ejs-dropdownlist #dropDownComponent [dataSource]="alignmentValues" name="alignment" formControlName="alignment" placeholder="Alignment"></ejs-dropdownlist>
             </div>
           </div>
 

@@ -9,7 +9,6 @@ import {BehaviorSubject, Subscription} from 'rxjs';
 import {Column} from '@syncfusion/ej2-angular-treegrid';
 import {ColumnService} from '../../../service/column.service';
 import {IColumn} from '../../../models/Column.interface';
-import {Alignment} from '../../../models/enums/Alignment.enum';
 
 @Component({
   selector: 'app-column-form',
@@ -37,10 +36,10 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   public uploadInput = '';
   isFormVisible = false;
   public dlgButtons: any[] = [];
-  public fields = { text: 'type', value: 'id' };
+  // public fields = { text: 'type', value: 'id' };
   private subsription: Subscription = new Subscription();
-  public alignmentValues: ({ id: string; type: string })[];
-  public dataTypeValues: ({ id: string; type: string })[];
+  public alignmentValues: Array<string>;
+  public dataTypeValues: Array<string>;
   dropdownValuesSubject = new BehaviorSubject([]);
   requestMode: 'update' | 'create';
   columnID: string;
@@ -53,19 +52,22 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     @Inject(FormBuilder) public formBuilder: FormBuilder,
     private columnService: ColumnService
   ) {
-    this.alignmentValues = [
-      {id: 'right', type: 'Right'},
-      {id: 'left', type: 'Left'},
-      {id: 'Center', type: 'Center'}
-    ];
+    this.alignmentValues = ['Right', 'Left', 'Center'];
 
     this.dataTypeValues = [
-      {id: this.dataType.BOOLEAN, type: this.dataType.BOOLEAN},
-      {id: this.dataType.DATE, type: this.dataType.DATE},
-      {id: this.dataType.DROPDOWN, type: this.dataType.DROPDOWN},
-      {id: this.dataType.NUMBER, type: this.dataType.NUMBER},
-      {id: this.dataType.TEXT, type: this.dataType.TEXT},
+      this.dataType.BOOLEAN,
+      this.dataType.DATE,
+      this.dataType.DROPDOWN,
+      this.dataType.NUMBER,
+      this.dataType.TEXT
     ];
+    // this.dataTypeValues = [
+    //   {id: this.dataType.BOOLEAN, type: this.dataType.BOOLEAN},
+    //   {id: this.dataType.DATE, type: this.dataType.DATE},
+    //   {id: this.dataType.DROPDOWN, type: this.dataType.DROPDOWN},
+    //   {id: this.dataType.NUMBER, type: this.dataType.NUMBER},
+    //   {id: this.dataType.TEXT, type: this.dataType.TEXT},
+    // ];
     this.setEmptyForm();
   }
 
@@ -81,24 +83,18 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   }
 
   createDropdownValue(): void {
-    this.addDropdownValue({
-      id: Date.now(),
-      type: 'Item Name'
-    });
+    this.pushDropdownValue('Item Name');
   }
 
-  addDropdownValue(item: { id: number, type: string }): void {
-    const control = new FormControl(item.type);
+  pushDropdownValue(item): void {
+    const control = new FormControl(item);
     this.dropdownValuesSubject.next([...this.dropdownValuesSubject.value, item]);
     const dropdownValuesControl = this.form.controls.dropdownValues as FormArray;
     dropdownValuesControl.push(control);
     const subscription = control.valueChanges.subscribe((title) => {
       const values = this.dropdownValuesSubject.value;
-      const index = values.findIndex(i => i.id === item.id);
-      values.splice(index, 1, {
-        id: item.id,
-        type: title
-      });
+      const index = values.findIndex(i => i === item);
+      values.splice(index, 1, title);
       this.dropdownValuesSubject.next(values);
     });
     this.subsription.add(subscription);
@@ -133,7 +129,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     });
     // this.clearDropDownValues();
     for (const dropdownValue of formData.dropdownValues) {
-      this.addDropdownValue(dropdownValue);
+      this.pushDropdownValue(dropdownValue);
     }
 
     this.form.controls.dataType.valueChanges.subscribe(() => {
@@ -165,6 +161,9 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   }
 
   public showDialog(columnData?: Column): void {
+    if (this.dropdownValuesSubject.value.length > 0) {
+      this.dropdownValuesSubject.next([]);
+    }
     if (columnData) {
       const column = this.columnService.findByColumnField(columnData.field) as IColumn;
       this.initForm(column);
@@ -172,6 +171,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       this.columnID = column.id;
     } else {
       this.setEmptyForm();
+      // this.createDropdownValue();
       this.requestMode = 'create';
     }
     this.dialogObj.show();
@@ -213,6 +213,8 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
 
   saveData(): void {
     this.setCorrectDateValue();
+    console.log(this.form.value.defaultValue);
+
     switch (this.requestMode) {
       case 'create':
         this.columnService.createColumn({
@@ -227,6 +229,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
         });
         break;
     }
+    // this.subsription.unsubscribe();
   }
 
   // universal validation
