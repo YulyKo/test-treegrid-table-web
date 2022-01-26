@@ -40,7 +40,7 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   private subsription: Subscription = new Subscription();
   public alignmentValues: Array<string>;
   public dataTypeValues: Array<string>;
-  dropdownValuesSubject = new BehaviorSubject([]);
+  dropdownValuesSubject = new BehaviorSubject(['Input']);
   requestMode: 'update' | 'create';
   columnID: string;
 
@@ -114,6 +114,11 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
     return formArray.controls as FormControl[];
   }
 
+  getDropdownControlsValue(): Array<string> {
+    const formArray = this.form.controls.dropdownValues as FormArray;
+    return formArray.value;
+  }
+
   initForm(formData: IColumn): void {
     this.form = this.formBuilder.group({
       name: [ formData.name, Validators.required],
@@ -147,8 +152,8 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   setEmptyForm(): void {
     this.initForm({
       name: '',
-      dataType: null,
-      defaultValue: null,
+      dataType: this.dataType.DROPDOWN,
+      defaultValue: '',
       minWidth: null,
       fontSize: null,
       fontColor: '#FFFFFF',
@@ -157,6 +162,8 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       textWrap: false,
       dropdownValues: []
     } as IColumn);
+    this.createDropdownValue();
+    this.createDropdownValue();
     this.createDropdownValue();
   }
 
@@ -171,7 +178,6 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
       this.columnID = column.id;
     } else {
       this.setEmptyForm();
-      // this.createDropdownValue();
       this.requestMode = 'create';
     }
     this.dialogObj.show();
