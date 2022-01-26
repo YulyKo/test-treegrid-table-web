@@ -44,6 +44,10 @@
 
           <div class="form-group" style="padding-top: 11px;">
             <div class="e-float-input">
+              <label class="e-float-text e-label-top" for="defaultValue" style="top: -30px;">Default value</label>
+              <span class="e-float-line"></span>
+            <div>
+              
               <ng-container [ngSwitch]="getFieldTypeData()">
 
                 <input type="text" formControlName="defaultValue" *ngSwitchCase="dataType.TEXT"/>
@@ -72,9 +76,8 @@
                   floatLabelType='Always'
                 ></ejs-datepicker>
               
-              </ng-container>                
-              <span class="e-float-line"></span>
-              <label class="e-float-text e-label-top" for="defaultValue">Default value</label>
+              </ng-container>
+            </div>
             </div>
           </div>
 
