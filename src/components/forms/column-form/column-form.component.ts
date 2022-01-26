@@ -9,6 +9,7 @@ import {BehaviorSubject, Subscription} from 'rxjs';
 import {Column} from '@syncfusion/ej2-angular-treegrid';
 import {ColumnService} from '../../../service/column.service';
 import {IColumn} from '../../../models/Column.interface';
+import { BOOLEAN_DATA_SOURCE } from '../../../models/BooleanDataSource.const';
 
 @Component({
   selector: 'app-column-form',
@@ -22,6 +23,8 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
   public dialogObj!: DialogComponent;
   @ViewChild('dropDownComponent')
   public dropDownComponent!: DropDownListComponent;
+
+  public readonly booleanDataSource = BOOLEAN_DATA_SOURCE;
 
   public dataType = DataType;
   public form!: FormGroup;
