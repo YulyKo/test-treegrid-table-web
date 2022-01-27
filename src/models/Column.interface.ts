@@ -1,5 +1,4 @@
 import { Alignment } from './enums/Alignment.enum';
-import {IDropdownValue} from './DropdownValues.interface';
 import {DataType} from './enums/DataType.enum';
 
 export interface IColumn {
@@ -7,12 +6,12 @@ export interface IColumn {
   field: string;
   name: string;
   dataType: DataType;
-  defaultValue?: string | number | boolean | Array<string> | null;
+  defaultValue?: string | number | boolean | null;
   minWidth: number | null;
   fontSize: number;
   fontColor: string;
   backgroundColor: string;
   alignment: Alignment | string;
-  dropdownValues: Array<IDropdownValue>;
+  dropdownValues: Array<string>;
   textWrap: boolean;
 }

@@ -3,7 +3,7 @@ import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR} from '@angular/for
 import {DataType} from 'src/models/enums/DataType.enum';
 import {Observable} from 'rxjs';
 import {DropDownListComponent} from '@syncfusion/ej2-angular-dropdowns/src/drop-down-list/dropdownlist.component';
-import {IDropdownValue} from '../../../models/DropdownValues.interface';
+import { BOOLEAN_DATA_SOURCE } from 'src/models/BooleanDataSource.const';
 
 type OnChange = (value: string) => void;
 type OnTouched = () => void;
@@ -23,13 +23,14 @@ export class DataInputComponent implements OnInit, ControlValueAccessor {
   @Input()
   type: DataType;
 
-  @Input() dropdownDataSource?: IDropdownValue[];
+  @Input() dropdownDataSource?: string[];
+  @Input() formType: 'row' | 'column';
+
   dataType = DataType;
   valueControl = new FormControl('');
   onChange: OnChange;
   onTouched: OnTouched;
-  public fields = {text: 'type', value: 'id'};
-  readonly booleanDataSource = ['true', 'false'];
+  public readonly booleanDataSource = BOOLEAN_DATA_SOURCE;
 
   ngOnInit(): void {
     this.valueControl.valueChanges.subscribe(value => {

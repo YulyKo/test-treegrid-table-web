@@ -81,10 +81,7 @@ export class RowService {
     this.http.post<ICreatePayload>(`${this.API_URL}/paste`, { fromPaths, rowStatus, toPath }).subscribe();
   }
 
-  removeMany(rows: any[]): void {
-    rows.forEach(row => {
-      this.removeRow(row);
-    });
+  cut(rowStatus: string, createPath: string[], delPaths: Array<string[]>, rows: IRow[]): void {
+    this.http.post<ICreatePayload>(`${this.API_URL}/cut`, { rowStatus, createPath, delPaths, rows }).subscribe();
   }
-
 }

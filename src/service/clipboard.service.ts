@@ -6,8 +6,10 @@ import IRow from '../models/Row.interface';
 @Injectable({ providedIn: 'root' })
 export class ClipboardService {
   private treegrid: TreeGridComponent;
-  private copiedPaths: Array<string[]>;
+  public copiedPaths: Array<string[]>;
   private lastSelectedPath: string[];
+  private cuttedRows: IRow[] = [];
+  private cutted = false;
 
   constructor(private rowService: RowService) {}
 
@@ -32,7 +34,32 @@ export class ClipboardService {
     // this.treegrid.clearSelection();
   }
 
+  setCuttedtRows(cuttedRows): void {
+    this.cuttedRows = cuttedRows;
+  }
+
+  getCuttedRows(): IRow[] {
+    return this.cuttedRows;
+  }
+
+  setIsCutted(cutted): void {
+    this.setIsCutted = cutted;
+  }
+
+  getIsCutted(): boolean {
+    return this.cutted;
+  }
+
+  cutrows(status, createPath): void {
+    this.rowService.cut(status, createPath, this.copiedPaths, this.cuttedRows);
+    this.cutted = true;
+  }
+
   paste(status: string, rowPath: string[]): void {
-    this.rowService.paste(status, rowPath, this.copiedPaths);
+    if (this.cuttedRows.length > 0) {
+      this.cutrows(status, rowPath);
+    } else {
+      this.rowService.paste(status, rowPath, this.copiedPaths);
+    }
   }
 }
