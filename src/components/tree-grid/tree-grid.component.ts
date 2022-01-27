@@ -30,6 +30,7 @@ import {map} from 'rxjs/operators';
 import {CONTEXT_MENU_ITEMS} from './contextMenu.const';
 import {DialogUtility} from '@syncfusion/ej2-angular-popups';
 import {ClipboardService} from '../../service/clipboard.service';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-tree-grid',
@@ -88,6 +89,7 @@ export class TreeGridComponent implements OnInit {
   private copiedRowIndexes: Array<number> = [];
   private isCutted = false;
   private isDoSelectionRows = false;
+  private cuttedrows = [];
   listHeaders = [];
 
   public enableVirtualization = true;
@@ -211,32 +213,34 @@ export class TreeGridComponent implements OnInit {
     this.isCutted = false;
     this.treegrid.copy();
     this.afterCopy();
-    this.clipboardService.setCuttedtRows([]);
+    // this.clipboardService.setCuttedtRows([]);
   }
   doCut(): void {
     this.isDoSelectionRows = true;
     this.isCutted = true;
     this.treegrid.copy();
+    // this.clipboardService.setCuttedtRows(this.cuttedrows);
     this.afterCopy();
   }
 
   beforeTreegridCopy(args): void {
     if (this.isCutted) {
       const rowIndexes = [];
-      const zeroRowIndex = +args.data.split('\t')[0].split('\n').at(-1);
-      rowIndexes.push(zeroRowIndex);
+      // const zeroRowIndex = +args.data.split('\t')[0].split('\n').at(-1);
+      // rowIndexes.push(zeroRowIndex);
 
-      args.data.split('\t').forEach(item => {
-        if (item.includes('\n')) {
-          const id = +item.replace('\n', '');
-          rowIndexes.push(id);
-        }
+      args.data.split('\n').forEach(item => {
+        const id = item.split('\t')[0];
+        // if (item.includes('\n')) {
+        //   const id = +item.replace('\n', '');
+        // }
+        rowIndexes.push(id);
       });
       const cutedRows = [];
       const rowsData = this.treegrid.getSelectedRecords();
       rowIndexes.forEach(rowIndex => {
         rowsData.forEach((rowData: any) => {
-          if (rowIndex === rowData.taskData.index) {
+          if (+rowIndex === +rowData.taskData.index) {
             cutedRows.push(rowData.taskData);
           }
         });

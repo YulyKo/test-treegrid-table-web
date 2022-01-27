@@ -222,7 +222,6 @@ export class ColumnFormComponent implements OnInit, OnDestroy {
 
   saveData(): void {
     this.setCorrectDateValue();
-    console.log(this.form.value.defaultValue);
 
     switch (this.requestMode) {
       case 'create':
