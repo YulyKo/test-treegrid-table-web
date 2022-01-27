@@ -1,5 +1,5 @@
 import {Component, HostListener, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {cellSelected, QueryCellInfoEventArgs, SaveEventArgs} from '@syncfusion/ej2-angular-grids';
+import { QueryCellInfoEventArgs } from '@syncfusion/ej2-angular-grids';
 import IRow from 'src/models/Row.interface';
 import { AppService } from 'src/service/app.service';
 
@@ -520,9 +520,9 @@ export class TreeGridComponent implements OnInit {
 
     // not work
     if (column.textWrap) {
-      el.style.setProperty('--cell-text-white-space', 'nowrap');
+      el.style.setProperty('--cell-text-wrap', 'normal');
     } else {
-      el.style.setProperty('--cell-text-white-space', 'normal');
+      el.style.setProperty('--cell-text-wrap', 'nowrap');
     }
   }
 

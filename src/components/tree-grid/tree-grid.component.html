@@ -11,7 +11,7 @@
             copy="true"
             [height]="windowHeight$ | async"
             width='100%'
-            allowTextWrap="true"
+            [allowTextWrap]='false' 
             allowSelection="true"
             allowReordering="true"
             [allowSorting]="allowMultiSorting"
@@ -42,7 +42,6 @@
                 <e-column
                   *ngFor="let column of columns"
                   [minWidth]='column.minWidth'
-                  class="column.id"
                   width=200
                   [field]='column.field'
                   [headerText]='column.name'
